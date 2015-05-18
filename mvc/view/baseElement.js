@@ -1,11 +1,11 @@
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
-h107.BaseElement = function () {
+h107.view.BaseElement = function () {
     "use strict";
 };
 
-h107.BaseElement.prototype = {
+h107.view.BaseElement.prototype = {
     constructor: h107.BaseElement,
     render: function(){
 

@@ -48,3 +48,7 @@ var h107 = (function(){
     };
 
 })();
+
+h107.view = {};
+h107.controller = {};
+h107.model = {};

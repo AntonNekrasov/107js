@@ -1,22 +1,27 @@
 <!DOCTYPE html>
 <html>
 <head lang="en">
-    <meta charset="UTF-8">
-    <script type="application/javascript" src="../dist/js/107.assembled.js"></script>
-    <title>Sample</title>
+	<meta charset="UTF-8">
+	<script type="application/javascript" src="../dist/js/107.assembled.js"></script>
+	<title>Sample</title>
 </head>
 <body>
 
 </body>
 <script>
 
-var elt = new h107.BaseView({
-    "class": ["one", "two"],
-    "style": {
-        "background-color": "red",
-        "padding": "10px"
-    },
-    "id": "ololo"
+var elt = new h107.view.BaseView({
+	"name": "Test",
+	"attributes": {
+		"class": ["one", "two"],
+		"style": {
+			"background-color": "red",
+			"padding": "10px"
+		},
+		"id": "ololo"
+	},
+	"content": [
+	]
 });
 
 document.body.appendChild(elt);

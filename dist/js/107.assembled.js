@@ -48,6 +48,10 @@ var h107 = (function(){
     };
 
 })();
+
+h107.view = {};
+h107.controller = {};
+h107.model = {};
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
@@ -140,35 +144,34 @@ h107.NodeConstructor = (function () {
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
-h107.BaseElement = function () {
+h107.view.BaseElement = function () {
     "use strict";
 };
 
-h107.BaseElement.prototype = {
+h107.view.BaseElement.prototype = {
     constructor: h107.BaseElement,
     render: function(){
 
     }
 };
-
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
-h107.BaseView = function (settings) {
+h107.view.BaseView = function (settings) {
     "use strict";
 
     var defaults = {
-            "class": ""
+            attributes: ""
         },
         applySettings = h107.mergeObjects(defaults, settings),
-        elt = h107.NodeConstructor.buildElement("div", applySettings);
+        elt = h107.NodeConstructor.buildElement("div", applySettings.attributes);
 
     return elt;
 };
 
-h107.extend(h107.BaseView, h107.BaseElement);
+h107.extend(h107.view.BaseView, h107.view.BaseElement);
 
-h107.BaseView.prototype.createChildren = function (reason, message) {
+h107.view.BaseView.prototype.createChildren = function (reason, message) {
     "use strict";
 
 
