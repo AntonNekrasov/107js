@@ -51,9 +51,8 @@ var h107 = (function(){
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
-h107.NodeConstructor = (function(){
+h107.NodeConstructor = (function () {
     "use strict";
-
     /**
      * constructs Node element
      *
@@ -62,37 +61,38 @@ h107.NodeConstructor = (function(){
      *      Value can be either string, or array of strings (e.g. {class: ['first', 'second']})
      * @param innerText - innerText to be put into the node, if needed
      */
-    function buildElement(nodeType, attributes, innerText){
+    function buildElement(nodeType, attributes, innerText) {
         var ID_MAX_LENGTH = 10,
             defaults = {
                 "id": generateId(ID_MAX_LENGTH)
             },
-            allAttributes = mergeObjects(defaults, attributes),
+            allAttributes = h107.mergeObjects(defaults, attributes),
             elt = document.createElement(nodeType),
             property;
 
-        for(property in allAttributes) {
-            if(allAttributes.hasOwnProperty(property)) {
+        for (property in allAttributes) {
+            if (allAttributes.hasOwnProperty(property)) {
                 applyAttribute(property, allAttributes[property]);
             }
         }
 
-        if(innerText) {
+        if (innerText) {
             elt.innerText = innerText;
             elt.textContent = innerText;
         }
+
         /**
          * auxiliary function, which set attributes of any kind (strings, arrays, objects etc)
          *
          * @param name - the name of attribute
          * @param value - the value of attribute
          */
-        function applyAttribute(name, value){
-            if(Object.prototype.toString.call(value) === "[object Object]") {
+        function applyAttribute(name, value) {
+            if (Object.prototype.toString.call(value) === "[object Object]") {
                 var attrValue = "",
                     subProperty;
-                for(subProperty in value) {
-                    if(value.hasOwnProperty(subProperty)) {
+                for (subProperty in value) {
+                    if (value.hasOwnProperty(subProperty)) {
                         attrValue += subProperty + ":" + value[subProperty] + ";";
                     }
                 }
@@ -116,7 +116,7 @@ h107.NodeConstructor = (function(){
             range = "abcdefghijklmnopqrstuvwxyz",
             i;
 
-        for(i = 0; i < length; i++) {
+        for (i = 0; i < length; i++) {
             text += range.charAt(Math.floor(Math.random() * range.length));
         }
 
@@ -137,6 +137,42 @@ h107.NodeConstructor = (function(){
         buildElement: buildElement
     };
 })();
+/**
+ * Created by Anton.Nekrasov on 5/18/2015.
+ */
+h107.BaseElement = function () {
+    "use strict";
+};
+
+h107.BaseElement.prototype = {
+    constructor: h107.BaseElement,
+    render: function(){
+
+    }
+};
+
+/**
+ * Created by Anton.Nekrasov on 5/18/2015.
+ */
+h107.BaseView = function (settings) {
+    "use strict";
+
+    var defaults = {
+            "class": ""
+        },
+        applySettings = h107.mergeObjects(defaults, settings),
+        elt = h107.NodeConstructor.buildElement("div", applySettings);
+
+    return elt;
+};
+
+h107.extend(h107.BaseView, h107.BaseElement);
+
+h107.BaseView.prototype.createChildren = function (reason, message) {
+    "use strict";
+
+
+};
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */

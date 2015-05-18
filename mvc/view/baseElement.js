@@ -3,9 +3,11 @@
  */
 h107.BaseElement = function () {
     "use strict";
-
 };
 
 h107.BaseElement.prototype = {
-    constructor: h107.BaseElement
+    constructor: h107.BaseElement,
+    render: function(){
+
+    }
 };

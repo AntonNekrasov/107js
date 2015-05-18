@@ -3,7 +3,6 @@
  */
 h107.NodeConstructor = (function () {
     "use strict";
-
     /**
      * constructs Node element
      *
@@ -17,7 +16,7 @@ h107.NodeConstructor = (function () {
             defaults = {
                 "id": generateId(ID_MAX_LENGTH)
             },
-            allAttributes = mergeObjects(defaults, attributes),
+            allAttributes = h107.mergeObjects(defaults, attributes),
             elt = document.createElement(nodeType),
             property;
 

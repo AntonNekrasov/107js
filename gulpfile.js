@@ -6,7 +6,7 @@ var gulp = require('gulp'),
     rename = require('gulp-rename'),
     //minifycss = require('gulp-minify-css'),
     notify = require('gulp-notify'),
-    //livereload = require('gulp-livereload'),
+    livereload = require('gulp-livereload'),
     del = require('del');
 
 gulp.task('script', function() {
@@ -14,7 +14,8 @@ gulp.task('script', function() {
         "mvc/107.js",
         /*view*/
         "mvc/view/nodeConstructor.js",
-        "mvc/view/baseElement",
+        "mvc/view/baseElement.js",
+        "mvc/view/baseView.js",
         /*model*/
         "mvc/model/baseService.js"
         /*controller*/
@@ -38,4 +39,15 @@ gulp.task('clean', function(cb) {
 
 gulp.task('default', ['clean'], function() {
     gulp.start('script');
+});
+
+// Watch
+gulp.task('watch', function() {
+
+    //gulp.watch('style/*.css', ['style']);
+    gulp.watch('mvc/**/*.js', ['script']);
+    livereload.listen();
+    // Watch any files in dist/, reload on change
+    //gulp.watch(['dist/**']).on('change', livereload.changed);
+
 });
