@@ -1,17 +1,17 @@
-h107.view.Button = function(settings) {
-    "use strict";
+h107.view.component.Button = function () {
+    'use strict';
 
-    var defaults = {
-        "id": "",
-        "text" : "",
-        "class": "rp-button", //todo: update;
-        "placeholder" : ""
-    };
+    // var defaults = {
+    //    id: '',
+    //    text : '',
+    //    class: 'rp-button', // todo: update;
+    //    placeholder : ''
+    // };
 
-    // rpApp.view.components.form.Button.superclass.constructor.call(this, defaults, settings);
+    // rpApp.view.components.form.Button.superclass.constructor.call(this, settings);
 };
 
-h107.extend(h107.view.Button, h107.view.BaseElement);
+h107.extend(h107.view.component.Button, h107.view.BaseElement);
 
 // rpApp.view.components.form.Button.prototype.render = function() {
 //     "use strict";

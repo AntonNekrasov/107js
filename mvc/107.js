@@ -1,9 +1,8 @@
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
-var h107 = (function(){
-    "use strict";
-
+var h107 = (function () {
+    'use strict';
     /**
      * merges all the properties of two objects
      *
@@ -11,10 +10,10 @@ var h107 = (function(){
      * @param extending - object, which extends target. Properties of extending will override those matching in target
      */
     function mergeObjects(target, extending) {
-        var aggregate = {},
-            property;
+        var aggregate = {};
+        var property;
 
-        if(!extending) {
+        if (!extending) {
             return target;
         }
 
@@ -25,7 +24,7 @@ var h107 = (function(){
         }
 
         for (property in extending) {
-            if(extending.hasOwnProperty(property) && !target[property]) {
+            if (extending.hasOwnProperty(property) && !target[property]) {
                 aggregate[property] = extending[property];
             }
         }
@@ -33,13 +32,19 @@ var h107 = (function(){
         return aggregate;
     }
 
-    function extend(Child, Parent) {
+    /**
+     * provides inheritance
+     *
+     * @param child - inheritor
+     * @param parent - parent object
+     */
+    function extend(child, parent) {
         var F = function () { };
-        F.prototype = Parent.prototype;
+        F.prototype = parent.prototype;
 
-        Child.prototype = new F();
-        Child.prototype.constructor = Child;
-        Child.superclass = Parent.prototype;
+        child.prototype = new F();
+        child.prototype.constructor = child;
+        child.superclass = parent.prototype;
     }
 
     return {
@@ -50,5 +55,13 @@ var h107 = (function(){
 })();
 
 h107.view = {};
+h107.view.component = {};
 h107.controller = {};
 h107.model = {};
+
+h107.callback = function Callback(fn, scope, parameters) {
+    'use strict';
+    this.fn = fn;
+    this.scope = scope;
+    this.parameters = parameters;
+};
