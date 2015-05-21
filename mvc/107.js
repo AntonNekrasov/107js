@@ -47,9 +47,19 @@ var h107 = (function () {
         child.superclass = parent.prototype;
     }
 
+    /**
+     * checks if given argument is object
+     *
+     * @param arg - argument to be checked
+     */
+    function isObject(arg) {
+        return Object.prototype.toString.call(arg) === '[object Object]';
+    }
+
     return {
         mergeObjects: mergeObjects,
-        extend: extend
+        extend: extend,
+        isObject: isObject
     };
 
 })();

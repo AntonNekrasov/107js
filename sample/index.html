@@ -10,23 +10,39 @@
 </body>
 <script>
 
-var elt = new h107.view.BaseView({
-	"name": "Test",
-	"attributes": {
-		"class": ["one", "two"],
-		"style": {
-			"background-color": "red",
-			"padding": "10px"
-		},
-		"id": "ololo"
+// var elt = new h107.view.BaseView({
+// 	"name": "Test",
+// 	"attributes": {
+// 		"class": ["one", "two"],
+// 		"style": {
+// 			"background-color": "red",
+// 			"padding": "10px"
+// 		},
+// 		"id": "ololo"
+// 	},
+// 	"content": [
+// 	]
+// });
+
+// document.body.appendChild(elt);
+
+var text = new h107.view.component.TextInput({
+	text: {
+		name: 'Text'
 	},
-	"content": [
-	]
+    label: {
+        attributes: {
+        	style: {
+        		height: '20px',
+        		width: '200px'
+        	}
+        },
+        text: 'Text label'
+    },
+    container: {
+        attributes: []
+    }
 });
-
-document.body.appendChild(elt);
-
-var text = new h107.view.component.TextInput();
 document.body.appendChild(text.html);
 var hidden = new h107.view.component.HiddenInput();
 document.body.appendChild(hidden.html);

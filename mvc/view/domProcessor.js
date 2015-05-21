@@ -41,6 +41,8 @@ h107.DomProcessor = (function () {
      * @param innerText - innerText to be put into the node, if needed
      */
     function buildElement(nodeType, attributes, innerText) {
+
+        console.log(innerText);
         var ID_MAX_LENGTH = 10;
         var ID_MIN_LENGTH = 5;
         var defaults = {
@@ -72,7 +74,7 @@ h107.DomProcessor = (function () {
      * @param value - the value of attribute
      */
     function applyAttribute(elt, name, value) {
-        if (Object.prototype.toString.call(value) === '[object Object]') {
+        if (h107.isObject(value)) {
             var attrValue = '';
             var subProperty;
 

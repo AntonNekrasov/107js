@@ -47,9 +47,19 @@ var h107 = (function () {
         child.superclass = parent.prototype;
     }
 
+    /**
+     * checks if given argument is object
+     *
+     * @param arg - argument to be checked
+     */
+    function isObject(arg) {
+        return Object.prototype.toString.call(arg) === '[object Object]';
+    }
+
     return {
         mergeObjects: mergeObjects,
-        extend: extend
+        extend: extend,
+        isObject: isObject
     };
 
 })();
@@ -108,6 +118,8 @@ h107.DomProcessor = (function () {
      * @param innerText - innerText to be put into the node, if needed
      */
     function buildElement(nodeType, attributes, innerText) {
+
+        console.log(innerText);
         var ID_MAX_LENGTH = 10;
         var ID_MIN_LENGTH = 5;
         var defaults = {
@@ -139,7 +151,7 @@ h107.DomProcessor = (function () {
      * @param value - the value of attribute
      */
     function applyAttribute(elt, name, value) {
-        if (Object.prototype.toString.call(value) === '[object Object]') {
+        if (h107.isObject(value)) {
             var attrValue = '';
             var subProperty;
 
@@ -221,15 +233,16 @@ h107.view.component.BaseInput = function (settings) {
     'use strict';
 
     var defaults = {
-        name: '', // todo: think over it;
+        name: '',
         label: {
-            attributes: [],
+            attributes: {},
             text: ''
         },
         container: {
-            attributes: []
+            attributes: {}
         }
     };
+
     this.settings = h107.mergeObjects(defaults, settings);
     this.html = this.assemble();
 };
@@ -247,12 +260,13 @@ h107.view.component.BaseInput.prototype.assemble = function (input) {
     if (!input) {
         throw 'BaseInput: no input defined';
     }
-    var build = h107.DomProcessor.buildElement;
-    var container = build('div');
-    var labelAttributes = this.settings.label.attributes;
 
-    labelAttributes.for = input.id;
-    var label = build('label', labelAttributes, this.settings.label.text);
+    var build = h107.DomProcessor.buildElement;
+    var containerSettings = this.settings.container;
+    var container = build('div', containerSettings.attributes);
+    var labelSettings = this.settings.label;
+    labelSettings.attributes.for = input.id;
+    var label = build('label', labelSettings.attributes, labelSettings.text);
 
     container.appendChild(label);
     container.appendChild(input);
@@ -264,10 +278,26 @@ h107.view.component.BaseInput.prototype.assemble = function (input) {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.TextInput = function () {
+h107.view.component.TextInput = function (settings) {
     'use strict';
-    // todo: add defaults;
-    h107.view.component.TextInput.superclass.constructor.call(this);
+
+    var defaults = {
+        text: {
+            name: '', // todo: check for existence
+            attributes: {
+                placeholder: ''
+            },
+            text: ''
+        }
+    };
+
+    var applySettings = h107.mergeObjects(defaults, settings);
+
+    if (!applySettings.text.name) {
+        throw 'TextInput: name is not defined';
+    }
+
+    h107.view.component.TextInput.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.component.TextInput, h107.view.component.BaseInput);
@@ -276,7 +306,8 @@ h107.view.component.TextInput.prototype.assemble = function () {
     'use strict';
 
     var input = h107.DomProcessor.buildElement('input', {
-        type: 'text'
+        type: 'text',
+        name: this.settings.text.name
     });
     return h107.view.component.TextInput.superclass.assemble.call(this, input);
 };
