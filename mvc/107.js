@@ -66,6 +66,7 @@ var h107 = (function () {
 
 h107.view = {};
 h107.view.component = {};
+h107.view.component.base = {};
 h107.controller = {};
 h107.model = {};
 

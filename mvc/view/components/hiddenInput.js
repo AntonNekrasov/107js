@@ -6,7 +6,7 @@ h107.view.component.HiddenInput = function () {
     h107.view.component.HiddenInput.superclass.constructor.call(this);
 };
 
-h107.extend(h107.view.component.HiddenInput, h107.view.component.BaseInput);
+h107.extend(h107.view.component.HiddenInput, h107.view.component.base.BaseInput);
 
 h107.view.component.HiddenInput.prototype.assemble = function () {
     'use strict';

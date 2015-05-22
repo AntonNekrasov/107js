@@ -1,7 +1,7 @@
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.BaseInput = function (settings) {
+h107.view.component.base.BaseInput = function (settings) {
     'use strict';
 
     var defaults = {
@@ -19,14 +19,14 @@ h107.view.component.BaseInput = function (settings) {
     this.html = this.assemble();
 };
 
-h107.extend(h107.view.component.BaseInput, h107.view.BaseElement);
+h107.extend(h107.view.component.base.BaseInput, h107.view.BaseElement);
 
-h107.view.component.BaseInput.prototype.validate = function () {
+h107.view.component.base.BaseInput.prototype.validate = function () {
     'use strict';
     // TODO: update;
 };
 
-h107.view.component.BaseInput.prototype.assemble = function (input) {
+h107.view.component.base.BaseInput.prototype.assemble = function (input) {
     'use strict';
 
     if (!input) {

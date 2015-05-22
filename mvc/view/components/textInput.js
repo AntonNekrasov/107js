@@ -6,7 +6,7 @@ h107.view.component.TextInput = function (settings) {
 
     var defaults = {
         text: {
-            name: '', // todo: check for existence
+            name: '',
             attributes: {
                 placeholder: ''
             },
@@ -23,11 +23,11 @@ h107.view.component.TextInput = function (settings) {
     h107.view.component.TextInput.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.TextInput, h107.view.component.BaseInput);
+h107.extend(h107.view.component.TextInput, h107.view.component.base.BaseInput);
 
 h107.view.component.TextInput.prototype.assemble = function () {
     'use strict';
-    // todo: attributes ???? 
+    // todo: attributes ????
     var input = h107.DomProcessor.buildElement('input', {
         type: 'text',
         name: this.settings.text.name

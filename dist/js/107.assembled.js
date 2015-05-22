@@ -66,6 +66,7 @@ var h107 = (function () {
 
 h107.view = {};
 h107.view.component = {};
+h107.view.component.base = {};
 h107.controller = {};
 h107.model = {};
 
@@ -119,7 +120,6 @@ h107.DomProcessor = (function () {
      */
     function buildElement(nodeType, attributes, innerText) {
 
-        console.log(innerText);
         var ID_MAX_LENGTH = 10;
         var ID_MIN_LENGTH = 5;
         var defaults = {
@@ -229,7 +229,7 @@ h107.view.BaseElement.prototype = {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.BaseInput = function (settings) {
+h107.view.component.base.BaseInput = function (settings) {
     'use strict';
 
     var defaults = {
@@ -247,14 +247,14 @@ h107.view.component.BaseInput = function (settings) {
     this.html = this.assemble();
 };
 
-h107.extend(h107.view.component.BaseInput, h107.view.BaseElement);
+h107.extend(h107.view.component.base.BaseInput, h107.view.BaseElement);
 
-h107.view.component.BaseInput.prototype.validate = function () {
+h107.view.component.base.BaseInput.prototype.validate = function () {
     'use strict';
     // TODO: update;
 };
 
-h107.view.component.BaseInput.prototype.assemble = function (input) {
+h107.view.component.base.BaseInput.prototype.assemble = function (input) {
     'use strict';
 
     if (!input) {
@@ -283,7 +283,7 @@ h107.view.component.TextInput = function (settings) {
 
     var defaults = {
         text: {
-            name: '', // todo: check for existence
+            name: '',
             attributes: {
                 placeholder: ''
             },
@@ -300,11 +300,11 @@ h107.view.component.TextInput = function (settings) {
     h107.view.component.TextInput.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.TextInput, h107.view.component.BaseInput);
+h107.extend(h107.view.component.TextInput, h107.view.component.base.BaseInput);
 
 h107.view.component.TextInput.prototype.assemble = function () {
     'use strict';
-
+    // todo: attributes ????
     var input = h107.DomProcessor.buildElement('input', {
         type: 'text',
         name: this.settings.text.name
@@ -319,7 +319,7 @@ h107.view.component.HiddenInput = function () {
     h107.view.component.HiddenInput.superclass.constructor.call(this);
 };
 
-h107.extend(h107.view.component.HiddenInput, h107.view.component.BaseInput);
+h107.extend(h107.view.component.HiddenInput, h107.view.component.base.BaseInput);
 
 h107.view.component.HiddenInput.prototype.assemble = function () {
     'use strict';
@@ -337,7 +337,7 @@ h107.view.component.Textarea = function () {
     h107.view.component.Textarea.superclass.constructor.call(this);
 };
 
-h107.extend(h107.view.component.Textarea, h107.view.component.BaseInput);
+h107.extend(h107.view.component.Textarea, h107.view.component.base.BaseInput);
 
 h107.view.component.Textarea.prototype.assemble = function () {
     'use strict';
@@ -345,6 +345,10 @@ h107.view.component.Textarea.prototype.assemble = function () {
     var input = h107.DomProcessor.buildElement('textarea');
     return h107.view.component.Textarea.superclass.assemble.call(this, input);
 };
+/**
+ * Created by Anton.Nekrasov on 5/22/2015.
+ */
+
 h107.view.component.Button = function () {
     'use strict';
 
@@ -389,6 +393,9 @@ h107.view.BaseView = function (settings) {
     var defaults = {
         attributes: ''
     };
+
+
+
     var applySettings = h107.mergeObjects(defaults, settings);
     var elt = h107.DomProcessor.buildElement('div', applySettings.attributes);
 
@@ -397,10 +404,32 @@ h107.view.BaseView = function (settings) {
 
 h107.extend(h107.view.BaseView, h107.view.BaseElement);
 
-h107.view.BaseView.prototype.createChildren = function () {
+//h107.view.BaseView.prototype.createChildren = function () {
+//    'use strict';
+//
+//
+//};
+
+h107.view.BaseView.prototype.assemble = function () {
     'use strict';
 
+};
+/**
+ * Created by Anton.Nekrasov on 5/22/2015.
+ */
+h107.view.FormView = function () {
+    'use strict';
+    // todo: add defaults;
+    h107.view.FormView.superclass.constructor.call(this);
+};
 
+h107.extend(h107.view.FormView, h107.view.BaseView);
+
+h107.view.FormView.prototype.assemble = function () {
+    'use strict';
+
+    var input = h107.DomProcessor.buildElement('form');
+    // return h107.view.FormView.superclass.assemble.call(this, input);
 };
 /**
  * Created by Anton.Nekrasov on 5/18/2015.

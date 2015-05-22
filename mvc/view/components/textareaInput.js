@@ -7,7 +7,7 @@ h107.view.component.Textarea = function () {
     h107.view.component.Textarea.superclass.constructor.call(this);
 };
 
-h107.extend(h107.view.component.Textarea, h107.view.component.BaseInput);
+h107.extend(h107.view.component.Textarea, h107.view.component.base.BaseInput);
 
 h107.view.component.Textarea.prototype.assemble = function () {
     'use strict';

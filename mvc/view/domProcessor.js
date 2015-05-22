@@ -42,7 +42,6 @@ h107.DomProcessor = (function () {
      */
     function buildElement(nodeType, attributes, innerText) {
 
-        console.log(innerText);
         var ID_MAX_LENGTH = 10;
         var ID_MIN_LENGTH = 5;
         var defaults = {

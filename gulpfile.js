@@ -17,13 +17,14 @@ gulp.task('script', function() {
         /*view*/
         'mvc/view/domProcessor.js',
         'mvc/view/baseElement.js',
-        'mvc/view/components/baseInput.js',
+        'mvc/view/components/base/baseInput.js',
         'mvc/view/components/textInput.js',
         'mvc/view/components/hiddenInput.js',
         'mvc/view/components/textareaInput.js',
+        'mvc/view/components/base/baseSection.js',
         'mvc/view/components/button.js',
-
         'mvc/view/baseView.js',
+        'mvc/view/formView.js',
         /*model*/
         'mvc/model/baseService.js'
         /*controller*/
