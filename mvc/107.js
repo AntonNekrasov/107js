@@ -70,6 +70,7 @@ var h107 = (function () {
 
         for (property in target) {
             if (target.hasOwnProperty(property)) {
+                if (ifMergeObjects(extending[property], target[property]))
                 aggregate[property] = extending[property] ? extending[property] : target[property];
             }
         }
@@ -81,6 +82,10 @@ var h107 = (function () {
         }
 
         return aggregate;
+    }
+
+    function ifMergeObjects(object1, object2) {
+        return isObject(object1) && isObject(object2);
     }
 
     /**

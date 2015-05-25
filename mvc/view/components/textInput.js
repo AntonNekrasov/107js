@@ -5,18 +5,16 @@ h107.view.components.TextInput = function (settings) {
     'use strict';
 
     var defaults = {
-        text: {
-            name: '',
-            attributes: {
-                placeholder: ''
-            },
-            text: ''
-        }
+        name: '',
+        attributes: {
+            placeholder: ''
+        },
+        text: ''
     };
 
     var applySettings = h107.mergeObjects(defaults, settings);
 
-    if (!applySettings.text.name) {
+    if (!applySettings.name) {
         throw 'TextInput: name is not defined';
     }
 
@@ -27,11 +25,11 @@ h107.extend(h107.view.components.TextInput, h107.view.components.base.BaseInput)
 
 h107.view.components.TextInput.prototype.assemble = function () {
     'use strict';
+    console.log(this.settings);
+    var attributes = this.settings.attributes;
+    attributes.type = 'text';
+    attributes.name = this.settings.name;
 
-    // todo: attributes ????
-    var input = h107.DomProcessor.buildElement('input', {
-        type: 'text',
-        name: this.settings.text.name
-    });
+    var input = h107.DomProcessor.buildElement('input', attributes);
     return h107.view.components.TextInput.superclass.assemble.call(this, input);
 };

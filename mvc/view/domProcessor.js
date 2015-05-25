@@ -13,7 +13,6 @@ h107.DomProcessor = (function () {
      * @param innerText - innerText to be put into the node, if needed
      */
     function buildElement(nodeType, attributes, innerText) {
-
         var elt = document.createElement(nodeType);
         var property;
 

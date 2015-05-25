@@ -11,11 +11,10 @@
 <script>
 
     var text = h107.create('text', {
-        text: {
-            name: 'Text'
-        },
+        name: 'Text',
         label: {
             attributes: {
+                placeholder: 'enter text',
                 style: {
                     height: '20px',
                     width: '200px'
@@ -51,17 +50,16 @@
             class: '',
             id: 'bookTitleSection',
             components: [{
-                component: 'Text',
+                component: 'text',
                 settings: {
-                    text: {
-                        name: 'Text',
-                        attributes: {
-                            style: {
-                                height: '20px',
-                                width: '200px'
-                            }
+                    name: 'text',
+                    attributes: {
+                        style: {
+                            height: '20px',
+                            width: '200px'
                         }
                     },
+
                     label: {
                         text: 'Text label'
                     },

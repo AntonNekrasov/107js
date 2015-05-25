@@ -14,7 +14,6 @@ h107.view.components.base.BaseElement = function (settings) {
 
     this.settings = h107.mergeObjects(defaults, settings);
     this.html = this.assemble();
-    console.log(this.settings);
 };
 
 h107.view.components.base.BaseElement.prototype = {
