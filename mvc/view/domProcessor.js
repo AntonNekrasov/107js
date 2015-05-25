@@ -3,34 +3,6 @@
  */
 h107.DomProcessor = (function () {
     'use strict';
-    /**
-     * generates random id
-     *
-     * @param minLength - minimum id length
-     * @param maxLength - maximum id length
-     */
-    function generateId(minLength, maxLength) {
-        var text = '';
-        var length = getRandomInt(minLength, maxLength);
-        var range = 'abcdefghijklmnopqrstuvwxyz';
-        var i;
-
-        for (i = 0; i < length; i++) {
-            text += range.charAt(Math.floor(Math.random() * range.length));
-        }
-
-        return text;
-    }
-
-    /**
-     * generates random integer
-     *
-     * @param min - minimum value
-     * @param max - maximum value
-     */
-    function getRandomInt(min, max) {
-        return Math.floor(Math.random() * (max - min)) + min;
-    }
 
     /**
      * constructs Node element
@@ -42,18 +14,12 @@ h107.DomProcessor = (function () {
      */
     function buildElement(nodeType, attributes, innerText) {
 
-        var ID_MAX_LENGTH = 10;
-        var ID_MIN_LENGTH = 5;
-        var defaults = {
-            id: generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
-        };
-        var allAttributes = h107.mergeObjects(defaults, attributes);
         var elt = document.createElement(nodeType);
         var property;
 
-        for (property in allAttributes) {
-            if (allAttributes.hasOwnProperty(property)) {
-                applyAttribute(elt, property, allAttributes[property]);
+        for (property in attributes) {
+            if (attributes.hasOwnProperty(property)) {
+                applyAttribute(elt, property, attributes[property]);
             }
         }
 

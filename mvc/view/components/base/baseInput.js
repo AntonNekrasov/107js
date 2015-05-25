@@ -1,7 +1,7 @@
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.base.BaseInput = function (settings) {
+h107.view.components.base.BaseInput = function (settings) {
     'use strict';
 
     var defaults = {
@@ -14,19 +14,18 @@ h107.view.component.base.BaseInput = function (settings) {
             attributes: {}
         }
     };
-
-    this.settings = h107.mergeObjects(defaults, settings);
-    this.html = this.assemble();
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.components.base.BaseInput.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.base.BaseInput, h107.view.BaseElement);
+h107.extend(h107.view.components.base.BaseInput, h107.view.components.base.BaseElement);
 
-h107.view.component.base.BaseInput.prototype.validate = function () {
+h107.view.components.base.BaseInput.prototype.validate = function () {
     'use strict';
     // TODO: update;
 };
 
-h107.view.component.base.BaseInput.prototype.assemble = function (input) {
+h107.view.components.base.BaseInput.prototype.assemble = function (input) {
     'use strict';
 
     if (!input) {
@@ -45,4 +44,3 @@ h107.view.component.base.BaseInput.prototype.assemble = function (input) {
 
     return container;
 };
-

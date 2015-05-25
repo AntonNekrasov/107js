@@ -1,7 +1,7 @@
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.TextInput = function (settings) {
+h107.view.components.TextInput = function (settings) {
     'use strict';
 
     var defaults = {
@@ -20,17 +20,18 @@ h107.view.component.TextInput = function (settings) {
         throw 'TextInput: name is not defined';
     }
 
-    h107.view.component.TextInput.superclass.constructor.call(this, applySettings);
+    h107.view.components.TextInput.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.TextInput, h107.view.component.base.BaseInput);
+h107.extend(h107.view.components.TextInput, h107.view.components.base.BaseInput);
 
-h107.view.component.TextInput.prototype.assemble = function () {
+h107.view.components.TextInput.prototype.assemble = function () {
     'use strict';
+
     // todo: attributes ????
     var input = h107.DomProcessor.buildElement('input', {
         type: 'text',
         name: this.settings.text.name
     });
-    return h107.view.component.TextInput.superclass.assemble.call(this, input);
+    return h107.view.components.TextInput.superclass.assemble.call(this, input);
 };

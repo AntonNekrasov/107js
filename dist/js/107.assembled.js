@@ -3,6 +3,57 @@
  */
 var h107 = (function () {
     'use strict';
+
+    function aliasMap() {
+        return {
+            text: h107.view.components.TextInput,
+            textarea: h107.view.components.Textarea,
+            hidden: h107.view.components.HiddenInput,
+            custom: h107.view.components.CustomElement,
+            section: h107.view.components.Section,
+            table: h107.view.components.Table,
+            form: h107.view.FormView
+        };
+    }
+
+    /**
+     * adds new component to the component set
+     *
+     * @param component to be added
+     */
+    function define(component) {
+        // todo: define alias, do validation etc;
+        // add extension, where it is needed;
+        if (aliasMap()[component.alias]) {
+            throw 'alias ' + component.alias + ' is already in use by other component';
+        }
+    }
+
+    /**
+     * returns function-constructor by it's alias
+     *
+     * @param alias - given alias
+     */
+    function identifyObjectByAlias(alias) {
+        var _aliasMap = aliasMap();
+        var constructor = _aliasMap[alias];
+        if (!constructor) {
+            throw 'identifyObjectByAlias: no match found for alias ' + alias;
+        }
+        return _aliasMap[alias];
+    }
+
+    /**
+     * creates an instance of component by given alias
+     *
+     * @param alias - alias
+     * @param settings - a set of arguments for constructor
+     */
+    function create(alias, settings) {
+        var Component = identifyObjectByAlias(alias);
+        return new Component(settings);
+    }
+
     /**
      * merges all the properties of two objects
      *
@@ -56,31 +107,6 @@ var h107 = (function () {
         return Object.prototype.toString.call(arg) === '[object Object]';
     }
 
-    return {
-        mergeObjects: mergeObjects,
-        extend: extend,
-        isObject: isObject
-    };
-
-})();
-
-h107.view = {};
-h107.view.component = {};
-h107.view.component.base = {};
-h107.controller = {};
-h107.model = {};
-
-h107.callback = function Callback(fn, scope, parameters) {
-    'use strict';
-    this.fn = fn;
-    this.scope = scope;
-    this.parameters = parameters;
-};
-/**
- * Created by Anton.Nekrasov on 5/18/2015.
- */
-h107.DomProcessor = (function () {
-    'use strict';
     /**
      * generates random id
      *
@@ -110,6 +136,35 @@ h107.DomProcessor = (function () {
         return Math.floor(Math.random() * (max - min)) + min;
     }
 
+    return {
+        define: define,
+        create: create,
+        mergeObjects: mergeObjects,
+        extend: extend,
+        generateId: generateId,
+        isObject: isObject
+    };
+
+})();
+
+h107.view = {};
+h107.view.components = {};
+h107.view.components.base = {};
+h107.controller = {};
+h107.model = {};
+
+h107.callback = function Callback(fn, scope, parameters) {
+    'use strict';
+    this.fn = fn;
+    this.scope = scope;
+    this.parameters = parameters;
+};
+/**
+ * Created by Anton.Nekrasov on 5/18/2015.
+ */
+h107.DomProcessor = (function () {
+    'use strict';
+
     /**
      * constructs Node element
      *
@@ -120,18 +175,12 @@ h107.DomProcessor = (function () {
      */
     function buildElement(nodeType, attributes, innerText) {
 
-        var ID_MAX_LENGTH = 10;
-        var ID_MIN_LENGTH = 5;
-        var defaults = {
-            id: generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
-        };
-        var allAttributes = h107.mergeObjects(defaults, attributes);
         var elt = document.createElement(nodeType);
         var property;
 
-        for (property in allAttributes) {
-            if (allAttributes.hasOwnProperty(property)) {
-                applyAttribute(elt, property, allAttributes[property]);
+        for (property in attributes) {
+            if (attributes.hasOwnProperty(property)) {
+                applyAttribute(elt, property, attributes[property]);
             }
         }
 
@@ -213,15 +262,24 @@ h107.DomProcessor = (function () {
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
-h107.view.BaseElement = function () {
+h107.view.components.base.BaseElement = function (settings) {
     'use strict';
 
+    var ID_MAX_LENGTH = 10;
+    var ID_MIN_LENGTH = 5;
+    var defaults = {
+        attributes: {
+            id: h107.generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
+        }
+    };
 
-
+    this.settings = h107.mergeObjects(defaults, settings);
+    this.html = this.assemble();
+    console.log(this.settings);
 };
 
-h107.view.BaseElement.prototype = {
-    constructor: h107.BaseElement,
+h107.view.components.base.BaseElement.prototype = {
+    constructor: h107.view.components.base.BaseElement,
     assemble: function () {
 
     }
@@ -229,7 +287,7 @@ h107.view.BaseElement.prototype = {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.base.BaseInput = function (settings) {
+h107.view.components.base.BaseInput = function (settings) {
     'use strict';
 
     var defaults = {
@@ -243,18 +301,19 @@ h107.view.component.base.BaseInput = function (settings) {
         }
     };
 
-    this.settings = h107.mergeObjects(defaults, settings);
-    this.html = this.assemble();
+    var applySettings = h107.mergeObjects(defaults, settings);
+
+    h107.view.components.base.BaseInput.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.base.BaseInput, h107.view.BaseElement);
+h107.extend(h107.view.components.base.BaseInput, h107.view.components.base.BaseElement);
 
-h107.view.component.base.BaseInput.prototype.validate = function () {
+h107.view.components.base.BaseInput.prototype.validate = function () {
     'use strict';
     // TODO: update;
 };
 
-h107.view.component.base.BaseInput.prototype.assemble = function (input) {
+h107.view.components.base.BaseInput.prototype.assemble = function (input) {
     'use strict';
 
     if (!input) {
@@ -276,9 +335,42 @@ h107.view.component.base.BaseInput.prototype.assemble = function (input) {
 
 
 /**
+ * Created by Anton.Nekrasov on 5/18/2015.
+ */
+h107.view.components.base.BaseContainer = function (settings) {
+    'use strict';
+    var defaults = {
+        attributes: '',
+        components: []
+    };
+
+    this.components = {};
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.components.base.BaseContainer.superclass.constructor.call(this, applySettings);
+};
+
+h107.extend(h107.view.components.base.BaseContainer, h107.view.components.base.BaseElement);
+
+
+h107.view.components.base.BaseContainer.prototype.assemble = function (container) {
+    'use strict';
+    var components = this.settings.components;
+    for (var i = 0, length = components.length; i < length; i++) {
+        var component = h107.create(components[i].component);
+        this.append(container, component);
+    }
+
+    return container;
+};
+
+h107.view.components.base.BaseContainer.prototype.append = function (container, component) {
+    'use strict';
+    // this.components[component.id]
+};
+/**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.TextInput = function (settings) {
+h107.view.components.TextInput = function (settings) {
     'use strict';
 
     var defaults = {
@@ -297,31 +389,32 @@ h107.view.component.TextInput = function (settings) {
         throw 'TextInput: name is not defined';
     }
 
-    h107.view.component.TextInput.superclass.constructor.call(this, applySettings);
+    h107.view.components.TextInput.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.TextInput, h107.view.component.base.BaseInput);
+h107.extend(h107.view.components.TextInput, h107.view.components.base.BaseInput);
 
-h107.view.component.TextInput.prototype.assemble = function () {
+h107.view.components.TextInput.prototype.assemble = function () {
     'use strict';
+
     // todo: attributes ????
     var input = h107.DomProcessor.buildElement('input', {
         type: 'text',
         name: this.settings.text.name
     });
-    return h107.view.component.TextInput.superclass.assemble.call(this, input);
+    return h107.view.components.TextInput.superclass.assemble.call(this, input);
 };
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.HiddenInput = function () {
+h107.view.components.HiddenInput = function () {
     'use strict';
-    h107.view.component.HiddenInput.superclass.constructor.call(this);
+    h107.view.components.HiddenInput.superclass.constructor.call(this);
 };
 
-h107.extend(h107.view.component.HiddenInput, h107.view.component.base.BaseInput);
+h107.extend(h107.view.components.HiddenInput, h107.view.components.base.BaseInput);
 
-h107.view.component.HiddenInput.prototype.assemble = function () {
+h107.view.components.HiddenInput.prototype.assemble = function () {
     'use strict';
     var hidden = h107.DomProcessor.buildElement('input', {
         type: 'hidden'
@@ -331,38 +424,62 @@ h107.view.component.HiddenInput.prototype.assemble = function () {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.component.Textarea = function () {
+h107.view.components.Textarea = function () {
     'use strict';
     // todo: add defaults;
-    h107.view.component.Textarea.superclass.constructor.call(this);
+    h107.view.components.Textarea.superclass.constructor.call(this);
 };
 
-h107.extend(h107.view.component.Textarea, h107.view.component.base.BaseInput);
+h107.extend(h107.view.components.Textarea, h107.view.components.base.BaseInput);
 
-h107.view.component.Textarea.prototype.assemble = function () {
+h107.view.components.Textarea.prototype.assemble = function () {
     'use strict';
-
+    // todo: attributes;
     var input = h107.DomProcessor.buildElement('textarea');
-    return h107.view.component.Textarea.superclass.assemble.call(this, input);
+    return h107.view.components.Textarea.superclass.assemble.call(this, input);
 };
 /**
- * Created by Anton.Nekrasov on 5/22/2015.
+ * Created by Anton.Nekrasov on 5/25/2015.
  */
-
-h107.view.component.Button = function () {
+h107.view.components.Table = function (settings) {
     'use strict';
 
-    // var defaults = {
-    //    id: '',
-    //    text : '',
-    //    class: 'rp-button', // todo: update;
-    //    placeholder : ''
-    // };
+    var defaults = {
+        name: '',
+        attributes: {
+            placeholder: ''
+        }
+    };
 
-    // rpApp.view.components.form.Button.superclass.constructor.call(this, settings);
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.components.Table.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.component.Button, h107.view.BaseElement);
+h107.extend(h107.view.components.Table, h107.view.components.base.BaseElement);
+
+h107.view.components.Table.prototype.assemble = function () {
+    'use strict';
+    // todo: attributes ????
+    // var input = h107.DomProcessor.buildElement('input', {
+    //    type: 'text',
+    //    name: this.settings.text.name
+    // });
+    // return h107.view.components.Table.superclass.assemble.call(this, input);
+    return h107.DomProcessor.buildElement('table');
+};
+h107.view.components.Button = function (settings) {
+    'use strict';
+
+    var defaults = {
+        id: '',
+        text : ''
+    };
+
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.components.Button.superclass.constructor.call(this, applySettings);
+};
+
+h107.extend(h107.view.components.Button, h107.view.components.base.BaseElement);
 
 // rpApp.view.components.form.Button.prototype.render = function() {
 //     "use strict";
@@ -386,50 +503,70 @@ h107.extend(h107.view.component.Button, h107.view.BaseElement);
 // return formElement;
 // };
 /**
- * Created by Anton.Nekrasov on 5/18/2015.
+ * Created by Anton.Nekrasov on 5/25/2015.
  */
-h107.view.BaseView = function (settings) {
+h107.view.components.Section = function (settings) {
     'use strict';
+
     var defaults = {
-        attributes: ''
     };
 
-
-
     var applySettings = h107.mergeObjects(defaults, settings);
-    var elt = h107.DomProcessor.buildElement('div', applySettings.attributes);
-
-    return elt;
+    h107.view.components.Section.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.BaseView, h107.view.BaseElement);
+h107.extend(h107.view.components.Section, h107.view.components.base.BaseContainer);
 
-//h107.view.BaseView.prototype.createChildren = function () {
-//    'use strict';
-//
-//
-//};
-
-h107.view.BaseView.prototype.assemble = function () {
+h107.view.components.Section.prototype.assemble = function () {
     'use strict';
 
+    var sectionSettings = this.settings.attributes;
+    var section = h107.DomProcessor.buildElement('div', sectionSettings);
+
+    return h107.view.components.Section.superclass.assemble.call(this, section);
 };
 /**
  * Created by Anton.Nekrasov on 5/22/2015.
  */
-h107.view.FormView = function () {
+h107.view.FormView = function (settings) {
     'use strict';
-    // todo: add defaults;
-    h107.view.FormView.superclass.constructor.call(this);
+
+    var defaults = {
+        action: '',
+        method: 'POST'
+    };
+
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.FormView.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.FormView, h107.view.BaseView);
+h107.extend(h107.view.FormView, h107.view.components.base.BaseContainer);
 
 h107.view.FormView.prototype.assemble = function () {
     'use strict';
 
-    var input = h107.DomProcessor.buildElement('form');
-    // return h107.view.FormView.superclass.assemble.call(this, input);
+    var formSettings = this.settings.attributes;
+    formSettings.action = this.settings.action;
+    formSettings.method = this.settings.method;
+
+    var form = h107.DomProcessor.buildElement('form', formSettings);
+
+    return h107.view.FormView.superclass.assemble.call(this, form);
+};
+
+h107.view.FormView.prototype.isDirty = function () {
+    'use strict';
+    // todo: implement;
+};
+
+h107.view.FormView.prototype.validate = function () {
+    'use strict';
+    // todo: implement;
+};
+
+h107.view.FormView.prototype.submit = function () {
+    'use strict';
+    // todo: implement;
 };
 /**
  * Created by Anton.Nekrasov on 5/18/2015.

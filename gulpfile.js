@@ -16,14 +16,16 @@ gulp.task('script', function() {
         'mvc/107.js',
         /*view*/
         'mvc/view/domProcessor.js',
-        'mvc/view/baseElement.js',
+        'mvc/view/components/base/baseElement.js',
         'mvc/view/components/base/baseInput.js',
+        'mvc/view/components/base/baseContainer.js',
         'mvc/view/components/textInput.js',
         'mvc/view/components/hiddenInput.js',
         'mvc/view/components/textareaInput.js',
-        'mvc/view/components/base/baseSection.js',
+        'mvc/view/components/table.js',
         'mvc/view/components/button.js',
-        'mvc/view/baseView.js',
+
+        'mvc/view/components/section.js',
         'mvc/view/formView.js',
         /*model*/
         'mvc/model/baseService.js'
