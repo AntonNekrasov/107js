@@ -1,17 +1,27 @@
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.components.Textarea = function () {
+h107.view.components.Textarea = function (settings) {
     'use strict';
-    // todo: add defaults;
-    h107.view.components.Textarea.superclass.constructor.call(this);
+    var defaults = {
+        attributes: {
+            placeholder: '',
+            style: {
+                resize: 'vertical'
+            }
+        }
+    };
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.components.Textarea.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.components.Textarea, h107.view.components.base.BaseInput);
 
 h107.view.components.Textarea.prototype.assemble = function () {
     'use strict';
-    // todo: attributes;
-    var input = h107.DomProcessor.buildElement('textarea');
+    var attributes = this.settings.attributes;
+    attributes.name = this.settings.name;
+
+    var input = h107.DomProcessor.buildElement('textarea', attributes);
     return h107.view.components.Textarea.superclass.assemble.call(this, input);
 };

@@ -21,9 +21,7 @@ h107.view.FormView.prototype.assemble = function () {
     var formSettings = this.settings.attributes;
     formSettings.action = this.settings.action;
     formSettings.method = this.settings.method;
-
     var form = h107.DomProcessor.buildElement('form', formSettings);
-
     return h107.view.FormView.superclass.assemble.call(this, form);
 };
 
@@ -38,6 +36,11 @@ h107.view.FormView.prototype.validate = function () {
 };
 
 h107.view.FormView.prototype.submit = function () {
+    'use strict';
+    // todo: implement;
+};
+
+h107.view.FormView.prototype.loadRecord = function (record) {
     'use strict';
     // todo: implement;
 };

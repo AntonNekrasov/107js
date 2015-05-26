@@ -24,8 +24,9 @@ gulp.task('script', function() {
         'mvc/view/components/textareaInput.js',
         'mvc/view/components/table.js',
         'mvc/view/components/button.js',
-
         'mvc/view/components/section.js',
+        'mvc/view/view.js',
+        'mvc/view/cardView.js',
         'mvc/view/formView.js',
         /*model*/
         'mvc/model/baseService.js'
@@ -58,9 +59,7 @@ gulp.task('default', ['clean'], function() {
 
 // Watch
 gulp.task('watch', function() {
-
     //gulp.watch('style/*.css', ['style']);
     gulp.watch('mvc/**/*.js', ['script']);
     livereload.listen();
-
 });

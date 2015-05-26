@@ -3,7 +3,7 @@
  */
 h107.view.components.Table = function (settings) {
     'use strict';
-
+    // todo: check wtf is happening with dom component;
     var defaults = {
         name: '',
         attributes: {
@@ -19,11 +19,16 @@ h107.extend(h107.view.components.Table, h107.view.components.base.BaseElement);
 
 h107.view.components.Table.prototype.assemble = function () {
     'use strict';
-    // todo: attributes ????
-    // var input = h107.DomProcessor.buildElement('input', {
-    //    type: 'text',
-    //    name: this.settings.text.name
-    // });
-    // return h107.view.components.Table.superclass.assemble.call(this, input);
-    return h107.DomProcessor.buildElement('table');
+
+    var build = h107.DomProcessor.buildElement;
+    var table = build('table', this.settings);
+    var thead = build('thead');
+    var th = build('th');
+    var td = build('td', {}, 'test'); // todo: remove;
+
+    th.appendChild(td); // todo: remove;
+    thead.appendChild(th);
+    table.appendChild(thead);
+
+    return table;
 };

@@ -15,6 +15,9 @@ h107.view.components.base.BaseInput = function (settings) {
         }
     };
     var applySettings = h107.mergeObjects(defaults, settings);
+    if (!applySettings.name) {
+        throw 'Input element: name is not defined';
+    }
     h107.view.components.base.BaseInput.superclass.constructor.call(this, applySettings);
 };
 

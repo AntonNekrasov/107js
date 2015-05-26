@@ -4,7 +4,8 @@
 h107.view.components.base.BaseContainer = function (settings) {
     'use strict';
     var defaults = {
-        attributes: '',
+        attributes: {
+        },
         components: []
     };
 
@@ -20,7 +21,8 @@ h107.view.components.base.BaseContainer.prototype.assemble = function (container
     'use strict';
     var components = this.settings.components;
     for (var i = 0, length = components.length; i < length; i++) {
-        var component = h107.create(components[i].component);
+        var current = components[i];
+        var component = h107.create(current.component, current);// todo: review this part: probably this needs only one argument;
         this.append(container, component);
     }
 
@@ -29,5 +31,6 @@ h107.view.components.base.BaseContainer.prototype.assemble = function (container
 
 h107.view.components.base.BaseContainer.prototype.append = function (container, component) {
     'use strict';
-    // this.components[component.id]
+    this.components[component.settings.attributes.id] = component;
+    container.appendChild(component.html);
 };

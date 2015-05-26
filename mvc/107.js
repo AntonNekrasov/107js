@@ -12,7 +12,8 @@ var h107 = (function () {
             custom: h107.view.components.CustomElement,
             section: h107.view.components.Section,
             table: h107.view.components.Table,
-            form: h107.view.FormView
+            form: h107.view.FormView,
+            view: h107.view.View
         };
     }
 
@@ -55,12 +56,19 @@ var h107 = (function () {
     }
 
     /**
-     * merges all the properties of two objects
+     * merges all the properties of two objects.
+     * If values are of primitive type or arrays, then property of target is replaced with property of extending
+     * If values are objects, then property of target is merged with property of extending
      *
      * @param target - target object, to be extended
      * @param extending - object, which extends target. Properties of extending will override those matching in target
      */
     function mergeObjects(target, extending) {
+
+        function checkIfBothObjects(object1, object2) {
+            return isObject(object1) && isObject(object2);
+        }
+
         var aggregate = {};
         var property;
 
@@ -70,8 +78,12 @@ var h107 = (function () {
 
         for (property in target) {
             if (target.hasOwnProperty(property)) {
-                if (ifMergeObjects(extending[property], target[property]))
-                aggregate[property] = extending[property] ? extending[property] : target[property];
+                if (checkIfBothObjects(extending[property], target[property])) {
+                    aggregate[property] = mergeObjects(extending[property], target[property]);
+                } else {
+                    aggregate[property] = extending[property] ? extending[property] : target[property];
+                }
+
             }
         }
 
@@ -82,10 +94,6 @@ var h107 = (function () {
         }
 
         return aggregate;
-    }
-
-    function ifMergeObjects(object1, object2) {
-        return isObject(object1) && isObject(object2);
     }
 
     /**

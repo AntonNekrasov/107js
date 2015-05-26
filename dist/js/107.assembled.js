@@ -12,7 +12,8 @@ var h107 = (function () {
             custom: h107.view.components.CustomElement,
             section: h107.view.components.Section,
             table: h107.view.components.Table,
-            form: h107.view.FormView
+            form: h107.view.FormView,
+            view: h107.view.View
         };
     }
 
@@ -55,12 +56,19 @@ var h107 = (function () {
     }
 
     /**
-     * merges all the properties of two objects
+     * merges all the properties of two objects.
+     * If values are of primitive type or arrays, then property of target is replaced with property of extending
+     * If values are objects, then property of target is merged with property of extending
      *
      * @param target - target object, to be extended
      * @param extending - object, which extends target. Properties of extending will override those matching in target
      */
     function mergeObjects(target, extending) {
+
+        function checkIfBothObjects(object1, object2) {
+            return isObject(object1) && isObject(object2);
+        }
+
         var aggregate = {};
         var property;
 
@@ -70,8 +78,12 @@ var h107 = (function () {
 
         for (property in target) {
             if (target.hasOwnProperty(property)) {
-                if (ifMergeObjects(extending[property], target[property]))
-                aggregate[property] = extending[property] ? extending[property] : target[property];
+                if (checkIfBothObjects(extending[property], target[property])) {
+                    aggregate[property] = mergeObjects(extending[property], target[property]);
+                } else {
+                    aggregate[property] = extending[property] ? extending[property] : target[property];
+                }
+
             }
         }
 
@@ -82,10 +94,6 @@ var h107 = (function () {
         }
 
         return aggregate;
-    }
-
-    function ifMergeObjects(object1, object2) {
-        return isObject(object1) && isObject(object2);
     }
 
     /**
@@ -304,6 +312,9 @@ h107.view.components.base.BaseInput = function (settings) {
         }
     };
     var applySettings = h107.mergeObjects(defaults, settings);
+    if (!applySettings.name) {
+        throw 'Input element: name is not defined';
+    }
     h107.view.components.base.BaseInput.superclass.constructor.call(this, applySettings);
 };
 
@@ -339,7 +350,8 @@ h107.view.components.base.BaseInput.prototype.assemble = function (input) {
 h107.view.components.base.BaseContainer = function (settings) {
     'use strict';
     var defaults = {
-        attributes: '',
+        attributes: {
+        },
         components: []
     };
 
@@ -355,7 +367,8 @@ h107.view.components.base.BaseContainer.prototype.assemble = function (container
     'use strict';
     var components = this.settings.components;
     for (var i = 0, length = components.length; i < length; i++) {
-        var component = h107.create(components[i].component);
+        var current = components[i];
+        var component = h107.create(current.component, current);// todo: review this part: probably this needs only one argument;
         this.append(container, component);
     }
 
@@ -364,7 +377,8 @@ h107.view.components.base.BaseContainer.prototype.assemble = function (container
 
 h107.view.components.base.BaseContainer.prototype.append = function (container, component) {
     'use strict';
-    // this.components[component.id]
+    this.components[component.settings.attributes.id] = component;
+    container.appendChild(component.html);
 };
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
@@ -373,19 +387,12 @@ h107.view.components.TextInput = function (settings) {
     'use strict';
 
     var defaults = {
-        name: '',
         attributes: {
             placeholder: ''
-        },
-        text: ''
+        }
     };
 
     var applySettings = h107.mergeObjects(defaults, settings);
-
-    if (!applySettings.name) {
-        throw 'TextInput: name is not defined';
-    }
-
     h107.view.components.TextInput.superclass.constructor.call(this, applySettings);
 };
 
@@ -393,7 +400,7 @@ h107.extend(h107.view.components.TextInput, h107.view.components.base.BaseInput)
 
 h107.view.components.TextInput.prototype.assemble = function () {
     'use strict';
-    console.log(this.settings);
+
     var attributes = this.settings.attributes;
     attributes.type = 'text';
     attributes.name = this.settings.name;
@@ -404,35 +411,49 @@ h107.view.components.TextInput.prototype.assemble = function () {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.components.HiddenInput = function () {
+h107.view.components.HiddenInput = function (settings) {
     'use strict';
-    h107.view.components.HiddenInput.superclass.constructor.call(this);
+    h107.view.components.HiddenInput.superclass.constructor.call(this, settings);
 };
 
 h107.extend(h107.view.components.HiddenInput, h107.view.components.base.BaseInput);
 
 h107.view.components.HiddenInput.prototype.assemble = function () {
     'use strict';
-    var hidden = h107.DomProcessor.buildElement('input', {
-        type: 'hidden'
-    });
+
+    var attributes = this.settings.attributes;
+    attributes.type = 'hidden';
+    attributes.name = this.settings.name;
+
+    var hidden = h107.DomProcessor.buildElement('input', attributes);
     return hidden;
+    // return h107.view.components.TextInput.superclass.assemble.call(this, input);
 };
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.view.components.Textarea = function () {
+h107.view.components.Textarea = function (settings) {
     'use strict';
-    // todo: add defaults;
-    h107.view.components.Textarea.superclass.constructor.call(this);
+    var defaults = {
+        attributes: {
+            placeholder: '',
+            style: {
+                resize: 'vertical'
+            }
+        }
+    };
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.components.Textarea.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.components.Textarea, h107.view.components.base.BaseInput);
 
 h107.view.components.Textarea.prototype.assemble = function () {
     'use strict';
-    // todo: attributes;
-    var input = h107.DomProcessor.buildElement('textarea');
+    var attributes = this.settings.attributes;
+    attributes.name = this.settings.name;
+
+    var input = h107.DomProcessor.buildElement('textarea', attributes);
     return h107.view.components.Textarea.superclass.assemble.call(this, input);
 };
 /**
@@ -440,7 +461,7 @@ h107.view.components.Textarea.prototype.assemble = function () {
  */
 h107.view.components.Table = function (settings) {
     'use strict';
-
+    // todo: check wtf is happening with dom component;
     var defaults = {
         name: '',
         attributes: {
@@ -456,13 +477,18 @@ h107.extend(h107.view.components.Table, h107.view.components.base.BaseElement);
 
 h107.view.components.Table.prototype.assemble = function () {
     'use strict';
-    // todo: attributes ????
-    // var input = h107.DomProcessor.buildElement('input', {
-    //    type: 'text',
-    //    name: this.settings.text.name
-    // });
-    // return h107.view.components.Table.superclass.assemble.call(this, input);
-    return h107.DomProcessor.buildElement('table');
+
+    var build = h107.DomProcessor.buildElement;
+    var table = build('table', this.settings);
+    var thead = build('thead');
+    var th = build('th');
+    var td = build('td', {}, 'test'); // todo: remove;
+
+    th.appendChild(td); // todo: remove;
+    thead.appendChild(th);
+    table.appendChild(thead);
+
+    return table;
 };
 h107.view.components.Button = function (settings) {
     'use strict';
@@ -523,6 +549,55 @@ h107.view.components.Section.prototype.assemble = function () {
     return h107.view.components.Section.superclass.assemble.call(this, section);
 };
 /**
+ * Created by Anton.Nekrasov on 5/26/2015.
+ */
+h107.view.View = function (settings) {
+    'use strict';
+
+    this.url = '';
+
+    var defaults = {
+    };
+
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.View.superclass.constructor.call(this, applySettings);
+};
+
+h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
+
+h107.view.View.prototype.assemble = function () {
+    'use strict';
+
+    var viewSettings = this.settings.attributes;
+    var view = h107.DomProcessor.buildElement('div', viewSettings);
+    return h107.view.View.superclass.assemble.call(this, view);
+};
+/**
+ * Created by Anton.Nekrasov on 5/26/2015.
+ */
+h107.view.CardView = function (settings) {
+    'use strict';
+
+    var defaults = {
+        attributes: {
+            style: {
+                position: 'relative'
+            }
+        }
+    };
+    var applySettings = h107.mergeObjects(defaults, settings);
+    h107.view.CardView.superclass.constructor.call(this, applySettings);
+};
+
+h107.extend(h107.view.CardView, h107.view.components.base.BaseContainer);
+
+h107.view.CardView.prototype.assemble = function () {
+    'use strict';
+    var cardSettings = this.settings.attributes;
+    var card = h107.DomProcessor.buildElement('form', cardSettings);
+    return h107.view.CardView.superclass.assemble.call(this, card);
+};
+/**
  * Created by Anton.Nekrasov on 5/22/2015.
  */
 h107.view.FormView = function (settings) {
@@ -545,9 +620,7 @@ h107.view.FormView.prototype.assemble = function () {
     var formSettings = this.settings.attributes;
     formSettings.action = this.settings.action;
     formSettings.method = this.settings.method;
-
     var form = h107.DomProcessor.buildElement('form', formSettings);
-
     return h107.view.FormView.superclass.assemble.call(this, form);
 };
 
@@ -562,6 +635,11 @@ h107.view.FormView.prototype.validate = function () {
 };
 
 h107.view.FormView.prototype.submit = function () {
+    'use strict';
+    // todo: implement;
+};
+
+h107.view.FormView.prototype.loadRecord = function (record) {
     'use strict';
     // todo: implement;
 };

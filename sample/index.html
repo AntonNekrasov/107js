@@ -28,17 +28,23 @@
     });
 
     document.body.appendChild(text.html);
-    var hidden = h107.create('hidden');
+    var hidden = h107.create('hidden', {name: 'hidden'});
     document.body.appendChild(hidden.html);
-    var textarea = h107.create('textarea');
+    var textarea = h107.create('textarea', {
+        name: 'textarea',
+        attributes: {
+            placeholder: 'test placeholder'
+        },
+        label: {
+            text: 'textarea'
+        }
+    });
     document.body.appendChild(textarea.html);
-
 
     var form = h107.create('form', {
         attributes: {
             style: {
                 height: '20px',
-                width: '200px',
                 border: '1px solid red'
             }
         },
@@ -51,20 +57,23 @@
             id: 'bookTitleSection',
             components: [{
                 component: 'text',
+                name: 'bookTitle',
                 settings: {
-                    name: 'text',
                     attributes: {
                         style: {
                             height: '20px',
                             width: '200px'
                         }
                     },
-
                     label: {
                         text: 'Text label'
                     },
                     container: {
-                        attributes: []
+                        attributes: {
+                            style: {
+                                border: '1px solid blue'
+                            }
+                        }
                     }
                 }
             }]
@@ -74,7 +83,82 @@
 
     });
 
-    document.body.appendChild(form.html);
+//    document.body.appendChild(form.html);
+    /*________________________________________________________*/
+    // todo: add simplest card view;
+    // todo: put three simplest views into card view
+    // todo: hide inactive ones;
+    // todo: add mechanism for adding active ones;
+    // todo: add possibility to define component;
+
+    var view1 = h107.create('view', {
+        attributes: {
+            style: {
+                border: '1px solid green'
+            }
+        },
+        components: [{
+            component: 'table'
+        }]
+
+    });
+
+    document.body.appendChild(view1.html);
+
+    var view2 = h107.create('view', {
+        attributes: {
+            style: {
+                border: '1px solid blue'
+            }
+        },
+        components: [{
+            component: 'textarea',
+            name: 'textarea',
+            attributes: {
+                placeholder: 'test placeholder'
+            },
+            label: {
+                text: 'Textarea'
+            }
+        }]
+
+    });
+
+    document.body.appendChild(view2.html);
+
+    var view3 = h107.create('view', {
+        attributes: {
+            style: {
+                border: '1px solid red'
+            }
+        },
+        components: [{
+            component: 'text',
+            name: 'bookTitle',
+            attributes: {
+                style: {
+                    height: '20px',
+                    width: '200px'
+                }
+            },
+            label: {
+                text: 'Text label'
+            },
+            container: {
+                attributes: {
+                    style: {
+                        border: '1px solid orange'
+                    }
+                }
+            }
+        }]
+    });
+
+    document.body.appendChild(view3.html);
+
+
 
 </script>
 </html>
+
+<!-- todo: think how define works; -->
