@@ -4,30 +4,22 @@
 var h107 = (function () {
     'use strict';
 
-    function aliasMap() {
-        return {
-            text: h107.view.components.TextInput,
-            textarea: h107.view.components.Textarea,
-            hidden: h107.view.components.HiddenInput,
-            custom: h107.view.components.CustomElement,
-            section: h107.view.components.Section,
-            table: h107.view.components.Table,
-            form: h107.view.FormView,
-            view: h107.view.View
-        };
-    }
-
     /**
      * adds new component to the component set
      *
-     * @param component to be added
+     * @param alias - is a new alias which will be identifying new component
+     * @param newComponent - is a new component to be registered
      */
-    function define(component) {
-        // todo: define alias, do validation etc;
-        // add extension, where it is needed;
-        if (aliasMap()[component.alias]) {
-            throw 'alias ' + component.alias + ' is already in use by other component';
+    function define(alias, newComponent) {
+        if (!alias || h107.aliasMap[alias]) {
+            throw 'alias ' + alias + ' is either already in use or not specified correctly';
         }
+
+        h107.aliasMap[alias] = function (settings) {
+            var applySettings = mergeObjects(newComponent, settings);
+            var Component = identifyObjectByAlias(newComponent.component);
+            return new Component(applySettings);
+        };
     }
 
     /**
@@ -36,22 +28,20 @@ var h107 = (function () {
      * @param alias - given alias
      */
     function identifyObjectByAlias(alias) {
-        var _aliasMap = aliasMap();
-        var constructor = _aliasMap[alias];
+        var constructor = h107.aliasMap[alias];
         if (!constructor) {
             throw 'identifyObjectByAlias: no match found for alias ' + alias;
         }
-        return _aliasMap[alias];
+        return h107.aliasMap[alias];
     }
 
     /**
      * creates an instance of component by given alias
      *
-     * @param alias - alias
      * @param settings - a set of arguments for constructor
      */
-    function create(alias, settings) {
-        var Component = identifyObjectByAlias(alias);
+    function create(settings) {
+        var Component = identifyObjectByAlias(settings.component);
         return new Component(settings);
     }
 
@@ -103,7 +93,8 @@ var h107 = (function () {
      * @param parent - parent object
      */
     function extend(child, parent) {
-        var F = function () { };
+        var F = function () {
+        };
         F.prototype = parent.prototype;
 
         child.prototype = new F();
@@ -152,6 +143,7 @@ var h107 = (function () {
     return {
         define: define,
         create: create,
+        identifyObjectByAlias: identifyObjectByAlias,
         mergeObjects: mergeObjects,
         extend: extend,
         generateId: generateId,
@@ -165,6 +157,7 @@ h107.view.components = {};
 h107.view.components.base = {};
 h107.controller = {};
 h107.model = {};
+h107.aliasMap = {};
 
 h107.callback = function Callback(fn, scope, parameters) {
     'use strict';

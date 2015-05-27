@@ -19,6 +19,17 @@ h107.view.components.base.BaseElement = function (settings) {
 h107.view.components.base.BaseElement.prototype = {
     constructor: h107.view.components.base.BaseElement,
     assemble: function () {
+        'use strict';
+        throw 'method hasn\'t been specified';
+    },
+    hide: function () {
+        'use strict';
+        h107.DomProcessor.addClassName(this.html, 'h107-hidden');
 
+    },
+    show: function () {
+        'use strict';
+        h107.DomProcessor.removeClassName(this.html, 'h107-hidden');
     }
 };
+

@@ -8,12 +8,12 @@ h107.view.FormView = function (settings) {
         action: '',
         method: 'POST'
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.FormView.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.FormView, h107.view.components.base.BaseContainer);
+h107.aliasMap.form = h107.view.FormView;
 
 h107.view.FormView.prototype.assemble = function () {
     'use strict';
@@ -42,5 +42,6 @@ h107.view.FormView.prototype.submit = function () {
 
 h107.view.FormView.prototype.loadRecord = function (record) {
     'use strict';
+    console.log(record);
     // todo: implement;
 };

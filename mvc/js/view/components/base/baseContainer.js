@@ -16,13 +16,12 @@ h107.view.components.base.BaseContainer = function (settings) {
 
 h107.extend(h107.view.components.base.BaseContainer, h107.view.components.base.BaseElement);
 
-
 h107.view.components.base.BaseContainer.prototype.assemble = function (container) {
     'use strict';
     var components = this.settings.components;
     for (var i = 0, length = components.length; i < length; i++) {
         var current = components[i];
-        var component = h107.create(current.component, current);// todo: review this part: probably this needs only one argument;
+        var component = h107.create(current);
         this.append(container, component);
     }
 

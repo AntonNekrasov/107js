@@ -3,6 +3,7 @@
  */
 h107.view.components.Table = function (settings) {
     'use strict';
+
     // todo: check wtf is happening with dom component;
     var defaults = {
         name: '',
@@ -16,6 +17,7 @@ h107.view.components.Table = function (settings) {
 };
 
 h107.extend(h107.view.components.Table, h107.view.components.base.BaseElement);
+h107.aliasMap.table = h107.view.components.Table;
 
 h107.view.components.Table.prototype.assemble = function () {
     'use strict';

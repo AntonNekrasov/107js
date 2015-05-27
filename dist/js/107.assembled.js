@@ -4,30 +4,22 @@
 var h107 = (function () {
     'use strict';
 
-    function aliasMap() {
-        return {
-            text: h107.view.components.TextInput,
-            textarea: h107.view.components.Textarea,
-            hidden: h107.view.components.HiddenInput,
-            custom: h107.view.components.CustomElement,
-            section: h107.view.components.Section,
-            table: h107.view.components.Table,
-            form: h107.view.FormView,
-            view: h107.view.View
-        };
-    }
-
     /**
      * adds new component to the component set
      *
-     * @param component to be added
+     * @param alias - is a new alias which will be identifying new component
+     * @param newComponent - is a new component to be registered
      */
-    function define(component) {
-        // todo: define alias, do validation etc;
-        // add extension, where it is needed;
-        if (aliasMap()[component.alias]) {
-            throw 'alias ' + component.alias + ' is already in use by other component';
+    function define(alias, newComponent) {
+        if (!alias || h107.aliasMap[alias]) {
+            throw 'alias ' + alias + ' is either already in use or not specified correctly';
         }
+
+        h107.aliasMap[alias] = function (settings) {
+            var applySettings = mergeObjects(newComponent, settings);
+            var Component = identifyObjectByAlias(newComponent.component);
+            return new Component(applySettings);
+        };
     }
 
     /**
@@ -36,22 +28,20 @@ var h107 = (function () {
      * @param alias - given alias
      */
     function identifyObjectByAlias(alias) {
-        var _aliasMap = aliasMap();
-        var constructor = _aliasMap[alias];
+        var constructor = h107.aliasMap[alias];
         if (!constructor) {
             throw 'identifyObjectByAlias: no match found for alias ' + alias;
         }
-        return _aliasMap[alias];
+        return h107.aliasMap[alias];
     }
 
     /**
      * creates an instance of component by given alias
      *
-     * @param alias - alias
      * @param settings - a set of arguments for constructor
      */
-    function create(alias, settings) {
-        var Component = identifyObjectByAlias(alias);
+    function create(settings) {
+        var Component = identifyObjectByAlias(settings.component);
         return new Component(settings);
     }
 
@@ -103,7 +93,8 @@ var h107 = (function () {
      * @param parent - parent object
      */
     function extend(child, parent) {
-        var F = function () { };
+        var F = function () {
+        };
         F.prototype = parent.prototype;
 
         child.prototype = new F();
@@ -152,6 +143,7 @@ var h107 = (function () {
     return {
         define: define,
         create: create,
+        identifyObjectByAlias: identifyObjectByAlias,
         mergeObjects: mergeObjects,
         extend: extend,
         generateId: generateId,
@@ -165,6 +157,7 @@ h107.view.components = {};
 h107.view.components.base = {};
 h107.controller = {};
 h107.model = {};
+h107.aliasMap = {};
 
 h107.callback = function Callback(fn, scope, parameters) {
     'use strict';
@@ -292,9 +285,21 @@ h107.view.components.base.BaseElement = function (settings) {
 h107.view.components.base.BaseElement.prototype = {
     constructor: h107.view.components.base.BaseElement,
     assemble: function () {
+        'use strict';
+        throw 'method hasn\'t been specified';
+    },
+    hide: function () {
+        'use strict';
+        h107.DomProcessor.addClassName(this.html, 'h107-hidden');
 
+    },
+    show: function () {
+        'use strict';
+        h107.DomProcessor.removeClassName(this.html, 'h107-hidden');
     }
 };
+
+
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
@@ -362,13 +367,12 @@ h107.view.components.base.BaseContainer = function (settings) {
 
 h107.extend(h107.view.components.base.BaseContainer, h107.view.components.base.BaseElement);
 
-
 h107.view.components.base.BaseContainer.prototype.assemble = function (container) {
     'use strict';
     var components = this.settings.components;
     for (var i = 0, length = components.length; i < length; i++) {
         var current = components[i];
-        var component = h107.create(current.component, current);// todo: review this part: probably this needs only one argument;
+        var component = h107.create(current);
         this.append(container, component);
     }
 
@@ -391,12 +395,12 @@ h107.view.components.TextInput = function (settings) {
             placeholder: ''
         }
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.components.TextInput.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.components.TextInput, h107.view.components.base.BaseInput);
+h107.aliasMap.text = h107.view.components.TextInput;
 
 h107.view.components.TextInput.prototype.assemble = function () {
     'use strict';
@@ -417,6 +421,7 @@ h107.view.components.HiddenInput = function (settings) {
 };
 
 h107.extend(h107.view.components.HiddenInput, h107.view.components.base.BaseInput);
+h107.aliasMap.hidden = h107.view.components.HiddenInput;
 
 h107.view.components.HiddenInput.prototype.assemble = function () {
     'use strict';
@@ -434,6 +439,7 @@ h107.view.components.HiddenInput.prototype.assemble = function () {
  */
 h107.view.components.Textarea = function (settings) {
     'use strict';
+
     var defaults = {
         attributes: {
             placeholder: '',
@@ -447,6 +453,7 @@ h107.view.components.Textarea = function (settings) {
 };
 
 h107.extend(h107.view.components.Textarea, h107.view.components.base.BaseInput);
+h107.aliasMap.textarea = h107.view.components.Textarea;
 
 h107.view.components.Textarea.prototype.assemble = function () {
     'use strict';
@@ -461,6 +468,7 @@ h107.view.components.Textarea.prototype.assemble = function () {
  */
 h107.view.components.Table = function (settings) {
     'use strict';
+
     // todo: check wtf is happening with dom component;
     var defaults = {
         name: '',
@@ -474,6 +482,7 @@ h107.view.components.Table = function (settings) {
 };
 
 h107.extend(h107.view.components.Table, h107.view.components.base.BaseElement);
+h107.aliasMap.table = h107.view.components.Table;
 
 h107.view.components.Table.prototype.assemble = function () {
     'use strict';
@@ -533,12 +542,12 @@ h107.view.components.Section = function (settings) {
 
     var defaults = {
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.components.Section.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.components.Section, h107.view.components.base.BaseContainer);
+h107.aliasMap.section = h107.view.components.Section;
 
 h107.view.components.Section.prototype.assemble = function () {
     'use strict';
@@ -555,15 +564,16 @@ h107.view.View = function (settings) {
     'use strict';
 
     this.url = '';
-
     var defaults = {
     };
 
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.View.superclass.constructor.call(this, applySettings);
+
 };
 
 h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
+h107.aliasMap.view = h107.view.View;
 
 h107.view.View.prototype.assemble = function () {
     'use strict';
@@ -571,6 +581,21 @@ h107.view.View.prototype.assemble = function () {
     var viewSettings = this.settings.attributes;
     var view = h107.DomProcessor.buildElement('div', viewSettings);
     return h107.view.View.superclass.assemble.call(this, view);
+};
+
+h107.view.View.prototype.fadeIn = function () {
+    'use strict';
+};
+
+h107.view.View.prototype.fadeOut = function () {
+    'use strict';
+
+};
+
+h107.view.View.prototype.isActive = function () {
+    'use strict';
+
+    return !!this.settings.active;
 };
 /**
  * Created by Anton.Nekrasov on 5/26/2015.
@@ -590,12 +615,41 @@ h107.view.CardView = function (settings) {
 };
 
 h107.extend(h107.view.CardView, h107.view.components.base.BaseContainer);
+h107.aliasMap.cardview = h107.view.CardView;
 
 h107.view.CardView.prototype.assemble = function () {
     'use strict';
+
+    this.__transformViewsIntoCards();
     var cardSettings = this.settings.attributes;
-    var card = h107.DomProcessor.buildElement('form', cardSettings);
+    var card = h107.DomProcessor.buildElement('div', cardSettings);
+
     return h107.view.CardView.superclass.assemble.call(this, card);
+};
+
+h107.view.CardView.prototype.getActiveView = function () {
+    console.log(this.components);
+};
+
+// todo: add check for view components allowed;
+h107.view.CardView.prototype.__transformViewsIntoCards = function () {
+    'use strict';
+
+    var components = this.settings.components;
+    var updatedComponents = [];
+    var append = {
+        attributes: {
+            'class': 'h107-hidden'
+        }
+    };
+    for (var i = 0, length = components.length; i < length; i++) {
+        var component = components[i];
+        if (!component.active) {
+            component = h107.mergeObjects(component, append);
+        }
+        updatedComponents.push(component);
+    }
+    this.settings.components = updatedComponents;
 };
 /**
  * Created by Anton.Nekrasov on 5/22/2015.
@@ -607,12 +661,12 @@ h107.view.FormView = function (settings) {
         action: '',
         method: 'POST'
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.FormView.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.FormView, h107.view.components.base.BaseContainer);
+h107.aliasMap.form = h107.view.FormView;
 
 h107.view.FormView.prototype.assemble = function () {
     'use strict';
@@ -641,6 +695,7 @@ h107.view.FormView.prototype.submit = function () {
 
 h107.view.FormView.prototype.loadRecord = function (record) {
     'use strict';
+    console.log(record);
     // todo: implement;
 };
 /**

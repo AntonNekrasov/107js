@@ -3,6 +3,7 @@
 <head lang="en">
     <meta charset="UTF-8">
     <script type="application/javascript" src="../dist/js/107.assembled.js"></script>
+    <link rel="stylesheet" type="text/css" href="../dist/css/107.min.css">
     <title>Sample</title>
 </head>
 <body>
@@ -10,88 +11,92 @@
 </body>
 <script>
 
-    var text = h107.create('text', {
-        name: 'Text',
-        label: {
-            attributes: {
-                placeholder: 'enter text',
-                style: {
-                    height: '20px',
-                    width: '200px'
-                }
-            },
-            text: 'Text label'
-        },
-        container: {
-            attributes: []
-        }
-    });
+//    var text = h107.create({
+//        component: 'text',
+//        name: 'Text',
+//        label: {
+//            attributes: {
+//                placeholder: 'enter text',
+//                css: {
+//                    height: '20px',
+//                    width: '200px'
+//                }
+//            },
+//            text: 'Text label'
+//        },
+//        container: {
+//            attributes: []
+//        }
+//    });
+//
+//    document.body.appendChild(text.html);
+//    var hidden = h107.create({
+//        component: 'hidden',
+//        name: 'hidden'
+//    });
+//    document.body.appendChild(hidden.html);
+//    var textarea = h107.create({
+//        component: 'textarea',
+//        name: 'textarea',
+//        attributes: {
+//            placeholder: 'test placeholder'
+//        },
+//        label: {
+//            text: 'textarea'
+//        }
+//    });
+//    document.body.appendChild(textarea.html);
 
-    document.body.appendChild(text.html);
-    var hidden = h107.create('hidden', {name: 'hidden'});
-    document.body.appendChild(hidden.html);
-    var textarea = h107.create('textarea', {
-        name: 'textarea',
-        attributes: {
-            placeholder: 'test placeholder'
-        },
-        label: {
-            text: 'textarea'
-        }
-    });
-    document.body.appendChild(textarea.html);
-
-    var form = h107.create('form', {
-        attributes: {
-            style: {
-                height: '20px',
-                border: '1px solid red'
-            }
-        },
-        action: 'someUrl',
-        method: 'post',
-        components: [{
-            component: 'section',
-            name: 'bookTitleSection',
-            class: '',
-            id: 'bookTitleSection',
-            components: [{
-                component: 'text',
-                name: 'bookTitle',
-                settings: {
-                    attributes: {
-                        style: {
-                            height: '20px',
-                            width: '200px'
-                        }
-                    },
-                    label: {
-                        text: 'Text label'
-                    },
-                    container: {
-                        attributes: {
-                            style: {
-                                border: '1px solid blue'
-                            }
-                        }
-                    }
-                }
-            }]
-        }, {
-            component: 'table'
-        }]
-
-    });
+//    var form = h107.create({
+//        component: 'form',
+//        attributes: {
+//            css: {
+//                height: '20px',
+//                border: '1px solid red'
+//            }
+//        },
+//        action: 'someUrl',
+//        method: 'post',
+//        components: [{
+//            component: 'section',
+//            name: 'bookTitleSection',
+//            class: '',
+//            id: 'bookTitleSection',
+//            components: [{
+//                component: 'text',
+//                name: 'bookTitle',
+//                settings: {
+//                    attributes: {
+//                        css: {
+//                            height: '20px',
+//                            width: '200px'
+//                        }
+//                    },
+//                    label: {
+//                        text: 'Text label'
+//                    },
+//                    container: {
+//                        attributes: {
+//                            css: {
+//                                border: '1px solid blue'
+//                            }
+//                        }
+//                    }
+//                }
+//            }]
+//        }, {
+//            component: 'table'
+//        }]
+//
+//    });
 
 //    document.body.appendChild(form.html);
     /*________________________________________________________*/
-    // todo: add simplest card view;
-    // todo: put three simplest views into card view
     // todo: hide inactive ones;
     // todo: add mechanism for adding active ones;
-    // todo: add possibility to define component;
 
-    var view1 = h107.create('view', {
+    h107.define('view1', {
+        component: 'view',
         attributes: {
             style: {
                 border: '1px solid green'
@@ -103,9 +108,8 @@
 
     });
 
-    document.body.appendChild(view1.html);
-
-    var view2 = h107.create('view', {
+    h107.define('view2', {
+        component: 'view',
         attributes: {
             style: {
                 border: '1px solid blue'
@@ -121,12 +125,10 @@
                 text: 'Textarea'
             }
         }]
-
     });
 
-    document.body.appendChild(view2.html);
-
-    var view3 = h107.create('view', {
+    h107.define('view3', {
+        component: 'view',
         attributes: {
             style: {
                 border: '1px solid red'
@@ -154,10 +156,25 @@
         }]
     });
 
-    document.body.appendChild(view3.html);
+    var cardView = h107.create({
+        component: 'cardview',
+        attributes: {
+            style: {
+                border: '1px solid'
+            }
+        },
+        components: [{
+            component: 'view1',
+            active: true
+        }, {
+            component: 'view2'
+        }, {
+            component: 'view3'
+        }]
+    });
 
-
-
+    document.body.appendChild(cardView.html);
+    cardView.getActiveView();
 </script>
 </html>
 

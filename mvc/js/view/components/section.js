@@ -6,12 +6,12 @@ h107.view.components.Section = function (settings) {
 
     var defaults = {
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.components.Section.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.components.Section, h107.view.components.base.BaseContainer);
+h107.aliasMap.section = h107.view.components.Section;
 
 h107.view.components.Section.prototype.assemble = function () {
     'use strict';

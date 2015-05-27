@@ -4,14 +4,9 @@
 h107.view.components.CustomElement = function (settings) {
     'use strict';
 
+    var alias = 'custom';
     var defaults = {
-        text: {
-            name: '',
-            attributes: {
-                placeholder: ''
-            },
-            text: ''
-        }
+        html: '<div></div>'
     };
 
     var applySettings = h107.mergeObjects(defaults, settings);
@@ -21,6 +16,7 @@ h107.view.components.CustomElement = function (settings) {
     }
 
     h107.view.components.CustomElement.superclass.constructor.call(this, applySettings);
+    h107.aliasMap[alias] = h107.view.components.custom;
 };
 
 h107.extend(h107.view.components.CustomElement, h107.view.components.base.BaseElement);

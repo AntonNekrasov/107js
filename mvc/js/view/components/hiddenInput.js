@@ -7,6 +7,7 @@ h107.view.components.HiddenInput = function (settings) {
 };
 
 h107.extend(h107.view.components.HiddenInput, h107.view.components.base.BaseInput);
+h107.aliasMap.hidden = h107.view.components.HiddenInput;
 
 h107.view.components.HiddenInput.prototype.assemble = function () {
     'use strict';

@@ -3,6 +3,7 @@
  */
 h107.view.components.Textarea = function (settings) {
     'use strict';
+
     var defaults = {
         attributes: {
             placeholder: '',
@@ -16,6 +17,7 @@ h107.view.components.Textarea = function (settings) {
 };
 
 h107.extend(h107.view.components.Textarea, h107.view.components.base.BaseInput);
+h107.aliasMap.textarea = h107.view.components.Textarea;
 
 h107.view.components.Textarea.prototype.assemble = function () {
     'use strict';

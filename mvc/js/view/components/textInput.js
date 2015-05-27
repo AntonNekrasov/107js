@@ -9,12 +9,12 @@ h107.view.components.TextInput = function (settings) {
             placeholder: ''
         }
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.components.TextInput.superclass.constructor.call(this, applySettings);
 };
 
 h107.extend(h107.view.components.TextInput, h107.view.components.base.BaseInput);
+h107.aliasMap.text = h107.view.components.TextInput;
 
 h107.view.components.TextInput.prototype.assemble = function () {
     'use strict';
