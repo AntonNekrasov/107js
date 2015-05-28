@@ -24,17 +24,27 @@ h107.view.View.prototype.assemble = function () {
     return h107.view.View.superclass.assemble.call(this, view);
 };
 
-h107.view.View.prototype.fadeIn = function () {
-    'use strict';
-};
-
-h107.view.View.prototype.fadeOut = function () {
-    'use strict';
-
-};
-
 h107.view.View.prototype.isActive = function () {
     'use strict';
-
     return !!this.settings.active;
+};
+
+h107.view.View.prototype.desActivate = function (duration, callback) {
+    'use strict';
+    this.settings.active = false;
+    if (duration === 0) {
+        this.hide();
+    } else {
+        this.fadeOut(duration, callback);
+    }
+};
+
+h107.view.View.prototype.activate = function (duration, callback) {
+    'use strict';
+    this.settings.active = true;
+    if (duration === 0) {
+        this.show();
+    } else {
+        this.fadeIn(duration, callback);
+    }
 };

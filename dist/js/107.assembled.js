@@ -296,10 +296,48 @@ h107.view.components.base.BaseElement.prototype = {
     show: function () {
         'use strict';
         h107.DomProcessor.removeClassName(this.html, 'h107-hidden');
+    },
+    fadeOut: function (duration, callback) {
+        'use strict';
+        var self = this;
+        var DEFAULT_DURATION = 300;
+        var elt = self.html;
+        var fadeOutAnimation = setInterval(function () {
+            var opacity = parseFloat(elt.style.opacity);
+            console.log(elt.style.opacity);
+            if (opacity > 0) {
+                console.log(self.html);
+
+                self.html.style.opacity = opacity - 0.1;
+            } else {
+                clearInterval(fadeOutAnimation);
+                self.hide();
+                if (callback) {
+                    callback.fn.apply(callback.scope, callback.parameters)
+                }
+            }
+        }, duration || DEFAULT_DURATION);
+    },
+    fadeIn: function (duration, callback) {
+        'use strict';
+        var self = this;
+        var fadeInAnimation;
+        var elt = self.html;
+        var DEFAULT_DURATION = 300;
+        self.show();
+        fadeInAnimation = setInterval(function () {
+            var opacity = parseFloat(elt.style.opacity);
+            if (opacity >= 1) {
+                clearInterval(fadeInAnimation);
+                if (callback) {
+                    callback.fn.apply(callback.scope, callback.parameters)
+                }
+            } else {
+                elt.style.opacity = opacity + 0.1;
+            }
+        }, duration || DEFAULT_DURATION);
     }
 };
-
-
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
@@ -583,26 +621,35 @@ h107.view.View.prototype.assemble = function () {
     return h107.view.View.superclass.assemble.call(this, view);
 };
 
-h107.view.View.prototype.fadeIn = function () {
-    'use strict';
-};
-
-h107.view.View.prototype.fadeOut = function () {
-    'use strict';
-
-};
-
 h107.view.View.prototype.isActive = function () {
     'use strict';
-
     return !!this.settings.active;
+};
+
+h107.view.View.prototype.desActivate = function (duration, callback) {
+    'use strict';
+    this.settings.active = false;
+    if (duration === 0) {
+        this.hide();
+    } else {
+        this.fadeOut(duration, callback);
+    }
+};
+
+h107.view.View.prototype.activate = function (duration, callback) {
+    'use strict';
+    this.settings.active = true;
+    if (duration === 0) {
+        this.show();
+    } else {
+        this.fadeIn(duration, callback);
+    }
 };
 /**
  * Created by Anton.Nekrasov on 5/26/2015.
  */
 h107.view.CardView = function (settings) {
     'use strict';
-
     var defaults = {
         attributes: {
             style: {
@@ -619,22 +666,41 @@ h107.aliasMap.cardview = h107.view.CardView;
 
 h107.view.CardView.prototype.assemble = function () {
     'use strict';
-
     this.__transformViewsIntoCards();
     var cardSettings = this.settings.attributes;
     var card = h107.DomProcessor.buildElement('div', cardSettings);
-
-    return h107.view.CardView.superclass.assemble.call(this, card);
+    var assembled = h107.view.CardView.superclass.assemble.call(this, card);
+    for (var id in this.components) {
+        console.log(id);
+        if (this.components.hasOwnProperty(id) && !this.components[id] instanceof h107.view.View) {
+            throw 'CardView can only accept h107.view.View object types';
+        }
+    }
+    return assembled;
 };
 
 h107.view.CardView.prototype.getActiveView = function () {
-    console.log(this.components);
+    'use strict';
+    for (var id in this.components) {
+        if (this.components.hasOwnProperty(id) && this.components[id].isActive()) {
+            return this.components[id];
+        }
+    }
 };
 
-// todo: add check for view components allowed;
+h107.view.CardView.prototype.setActive = function (id, disableAnimation) {
+    'use strict';
+    var currentView = this.getActiveView();
+    var newView = this.components[id];
+    currentView.desActivate(1000, new h107.callback(
+        newView.activate,
+        newView,
+        [1000]
+    ));
+};
+
 h107.view.CardView.prototype.__transformViewsIntoCards = function () {
     'use strict';
-
     var components = this.settings.components;
     var updatedComponents = [];
     var append = {

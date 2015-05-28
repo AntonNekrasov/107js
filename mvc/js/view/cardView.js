@@ -3,7 +3,6 @@
  */
 h107.view.CardView = function (settings) {
     'use strict';
-
     var defaults = {
         attributes: {
             style: {
@@ -20,22 +19,41 @@ h107.aliasMap.cardview = h107.view.CardView;
 
 h107.view.CardView.prototype.assemble = function () {
     'use strict';
-
     this.__transformViewsIntoCards();
     var cardSettings = this.settings.attributes;
     var card = h107.DomProcessor.buildElement('div', cardSettings);
-
-    return h107.view.CardView.superclass.assemble.call(this, card);
+    var assembled = h107.view.CardView.superclass.assemble.call(this, card);
+    for (var id in this.components) {
+        console.log(id);
+        if (this.components.hasOwnProperty(id) && !this.components[id] instanceof h107.view.View) {
+            throw 'CardView can only accept h107.view.View object types';
+        }
+    }
+    return assembled;
 };
 
 h107.view.CardView.prototype.getActiveView = function () {
-    console.log(this.components);
+    'use strict';
+    for (var id in this.components) {
+        if (this.components.hasOwnProperty(id) && this.components[id].isActive()) {
+            return this.components[id];
+        }
+    }
 };
 
-// todo: add check for view components allowed;
+h107.view.CardView.prototype.setActive = function (id, disableAnimation) {
+    'use strict';
+    var currentView = this.getActiveView();
+    var newView = this.components[id];
+    currentView.desActivate(1000, new h107.callback(
+        newView.activate,
+        newView,
+        [1000]
+    ));
+};
+
 h107.view.CardView.prototype.__transformViewsIntoCards = function () {
     'use strict';
-
     var components = this.settings.components;
     var updatedComponents = [];
     var append = {

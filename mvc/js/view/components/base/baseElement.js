@@ -30,6 +30,45 @@ h107.view.components.base.BaseElement.prototype = {
     show: function () {
         'use strict';
         h107.DomProcessor.removeClassName(this.html, 'h107-hidden');
+    },
+    fadeOut: function (duration, callback) {
+        'use strict';
+        var self = this;
+        var DEFAULT_DURATION = 300;
+        var elt = self.html;
+        var fadeOutAnimation = setInterval(function () {
+            var opacity = parseFloat(elt.style.opacity);
+            console.log(elt.style.opacity);
+            if (opacity > 0) {
+                console.log(self.html);
+
+                self.html.style.opacity = opacity - 0.1;
+            } else {
+                clearInterval(fadeOutAnimation);
+                self.hide();
+                if (callback) {
+                    callback.fn.apply(callback.scope, callback.parameters)
+                }
+            }
+        }, duration || DEFAULT_DURATION);
+    },
+    fadeIn: function (duration, callback) {
+        'use strict';
+        var self = this;
+        var fadeInAnimation;
+        var elt = self.html;
+        var DEFAULT_DURATION = 300;
+        self.show();
+        fadeInAnimation = setInterval(function () {
+            var opacity = parseFloat(elt.style.opacity);
+            if (opacity >= 1) {
+                clearInterval(fadeInAnimation);
+                if (callback) {
+                    callback.fn.apply(callback.scope, callback.parameters)
+                }
+            } else {
+                elt.style.opacity = opacity + 0.1;
+            }
+        }, duration || DEFAULT_DURATION);
     }
 };
-
