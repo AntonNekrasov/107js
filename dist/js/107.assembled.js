@@ -159,7 +159,7 @@ h107.controller = {};
 h107.model = {};
 h107.aliasMap = {};
 
-h107.callback = function Callback(fn, scope, parameters) {
+h107.Callback = function Callback(fn, scope, parameters) {
     'use strict';
     this.fn = fn;
     this.scope = scope;
@@ -300,14 +300,11 @@ h107.view.components.base.BaseElement.prototype = {
     fadeOut: function (duration, callback) {
         'use strict';
         var self = this;
-        var DEFAULT_DURATION = 300;
+        var DEFAULT_DURATION = 30;
         var elt = self.html;
         var fadeOutAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
-            console.log(elt.style.opacity);
             if (opacity > 0) {
-                console.log(self.html);
-
                 self.html.style.opacity = opacity - 0.1;
             } else {
                 clearInterval(fadeOutAnimation);
@@ -323,7 +320,7 @@ h107.view.components.base.BaseElement.prototype = {
         var self = this;
         var fadeInAnimation;
         var elt = self.html;
-        var DEFAULT_DURATION = 300;
+        var DEFAULT_DURATION = 30;
         self.show();
         fadeInAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
@@ -600,9 +597,15 @@ h107.view.components.Section.prototype.assemble = function () {
  */
 h107.view.View = function (settings) {
     'use strict';
-
     this.url = '';
+
     var defaults = {
+        attributes: {
+            //active: false
+            //style: {
+            //    opacity: 0
+            //}
+        }
     };
 
     var applySettings = h107.mergeObjects(defaults, settings);
@@ -672,6 +675,7 @@ h107.view.CardView.prototype.assemble = function () {
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
     for (var id in this.components) {
         console.log(id);
+        console.log(this.components[id].html);
         if (this.components.hasOwnProperty(id) && !this.components[id] instanceof h107.view.View) {
             throw 'CardView can only accept h107.view.View object types';
         }
@@ -688,14 +692,15 @@ h107.view.CardView.prototype.getActiveView = function () {
     }
 };
 
-h107.view.CardView.prototype.setActive = function (id, disableAnimation) {
+h107.view.CardView.prototype.setActive = function (id, duration) {
     'use strict';
     var currentView = this.getActiveView();
+    var DEFAULT_DURATION = 15;
     var newView = this.components[id];
-    currentView.desActivate(1000, new h107.callback(
+    currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
         newView.activate,
         newView,
-        [1000]
+        [duration || DEFAULT_DURATION]
     ));
 };
 
@@ -703,15 +708,27 @@ h107.view.CardView.prototype.__transformViewsIntoCards = function () {
     'use strict';
     var components = this.settings.components;
     var updatedComponents = [];
-    var append = {
+    var settings = {
         attributes: {
-            'class': 'h107-hidden'
+            'class': 'h107-hidden',
+            style: {
+                opacity: 0
+            }
+        }
+    };
+    var activeSettings = {
+        attributes: {
+            style: {
+                opacity: 1
+            }
         }
     };
     for (var i = 0, length = components.length; i < length; i++) {
         var component = components[i];
-        if (!component.active) {
-            component = h107.mergeObjects(component, append);
+        if (component.active) {
+            component = h107.mergeObjects(component, activeSettings);
+        } else {
+            component = h107.mergeObjects(component, settings);
         }
         updatedComponents.push(component);
     }

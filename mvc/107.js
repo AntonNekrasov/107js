@@ -159,7 +159,7 @@ h107.controller = {};
 h107.model = {};
 h107.aliasMap = {};
 
-h107.callback = function Callback(fn, scope, parameters) {
+h107.Callback = function Callback(fn, scope, parameters) {
     'use strict';
     this.fn = fn;
     this.scope = scope;

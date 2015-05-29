@@ -3,9 +3,15 @@
  */
 h107.view.View = function (settings) {
     'use strict';
-
     this.url = '';
+
     var defaults = {
+        attributes: {
+            //active: false
+            //style: {
+            //    opacity: 0
+            //}
+        }
     };
 
     var applySettings = h107.mergeObjects(defaults, settings);

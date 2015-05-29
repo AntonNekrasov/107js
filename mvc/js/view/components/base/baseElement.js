@@ -34,14 +34,11 @@ h107.view.components.base.BaseElement.prototype = {
     fadeOut: function (duration, callback) {
         'use strict';
         var self = this;
-        var DEFAULT_DURATION = 300;
+        var DEFAULT_DURATION = 30;
         var elt = self.html;
         var fadeOutAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
-            console.log(elt.style.opacity);
             if (opacity > 0) {
-                console.log(self.html);
-
                 self.html.style.opacity = opacity - 0.1;
             } else {
                 clearInterval(fadeOutAnimation);
@@ -57,7 +54,7 @@ h107.view.components.base.BaseElement.prototype = {
         var self = this;
         var fadeInAnimation;
         var elt = self.html;
-        var DEFAULT_DURATION = 300;
+        var DEFAULT_DURATION = 30;
         self.show();
         fadeInAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);

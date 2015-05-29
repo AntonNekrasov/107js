@@ -25,6 +25,7 @@ h107.view.CardView.prototype.assemble = function () {
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
     for (var id in this.components) {
         console.log(id);
+        console.log(this.components[id].html);
         if (this.components.hasOwnProperty(id) && !this.components[id] instanceof h107.view.View) {
             throw 'CardView can only accept h107.view.View object types';
         }
@@ -41,14 +42,15 @@ h107.view.CardView.prototype.getActiveView = function () {
     }
 };
 
-h107.view.CardView.prototype.setActive = function (id, disableAnimation) {
+h107.view.CardView.prototype.setActive = function (id, duration) {
     'use strict';
     var currentView = this.getActiveView();
+    var DEFAULT_DURATION = 15;
     var newView = this.components[id];
-    currentView.desActivate(1000, new h107.callback(
+    currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
         newView.activate,
         newView,
-        [1000]
+        [duration || DEFAULT_DURATION]
     ));
 };
 
@@ -56,15 +58,27 @@ h107.view.CardView.prototype.__transformViewsIntoCards = function () {
     'use strict';
     var components = this.settings.components;
     var updatedComponents = [];
-    var append = {
+    var settings = {
         attributes: {
-            'class': 'h107-hidden'
+            'class': 'h107-hidden',
+            style: {
+                opacity: 0
+            }
+        }
+    };
+    var activeSettings = {
+        attributes: {
+            style: {
+                opacity: 1
+            }
         }
     };
     for (var i = 0, length = components.length; i < length; i++) {
         var component = components[i];
-        if (!component.active) {
-            component = h107.mergeObjects(component, append);
+        if (component.active) {
+            component = h107.mergeObjects(component, activeSettings);
+        } else {
+            component = h107.mergeObjects(component, settings);
         }
         updatedComponents.push(component);
     }
