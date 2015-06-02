@@ -19,12 +19,10 @@ h107.extend(h107.view.components.base.BaseContainer, h107.view.components.base.B
 h107.view.components.base.BaseContainer.prototype.assemble = function (container) {
     'use strict';
     var components = this.settings.components;
-    for (var i = 0, length = components.length; i < length; i++) {
-        var current = components[i];
+    components.map(function (current) {
         var component = h107.create(current);
         this.append(container, component);
-    }
-
+    });
     return container;
 };
 

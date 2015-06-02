@@ -405,12 +405,10 @@ h107.extend(h107.view.components.base.BaseContainer, h107.view.components.base.B
 h107.view.components.base.BaseContainer.prototype.assemble = function (container) {
     'use strict';
     var components = this.settings.components;
-    for (var i = 0, length = components.length; i < length; i++) {
-        var current = components[i];
+    components.map(function (current) {
         var component = h107.create(current);
         this.append(container, component);
-    }
-
+    });
     return container;
 };
 
@@ -601,10 +599,6 @@ h107.view.View = function (settings) {
 
     var defaults = {
         attributes: {
-            //active: false
-            //style: {
-            //    opacity: 0
-            //}
         }
     };
 
@@ -673,10 +667,10 @@ h107.view.CardView.prototype.assemble = function () {
     var cardSettings = this.settings.attributes;
     var card = h107.DomProcessor.buildElement('div', cardSettings);
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
-    for (var id in this.components) {
+    for (var id in this.components) { // use map & arrow function
         console.log(id);
         console.log(this.components[id].html);
-        if (this.components.hasOwnProperty(id) && !this.components[id] instanceof h107.view.View) {
+        if (this.components.hasOwnProperty(id) && !(this.components[id] instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
         }
     }
@@ -723,15 +717,16 @@ h107.view.CardView.prototype.__transformViewsIntoCards = function () {
             }
         }
     };
-    for (var i = 0, length = components.length; i < length; i++) {
-        var component = components[i];
+
+    components.map(function (component) {
         if (component.active) {
             component = h107.mergeObjects(component, activeSettings);
         } else {
             component = h107.mergeObjects(component, settings);
         }
         updatedComponents.push(component);
-    }
+    });
+
     this.settings.components = updatedComponents;
 };
 /**

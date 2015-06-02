@@ -7,10 +7,6 @@ h107.view.View = function (settings) {
 
     var defaults = {
         attributes: {
-            //active: false
-            //style: {
-            //    opacity: 0
-            //}
         }
     };
 
