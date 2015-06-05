@@ -404,10 +404,11 @@ h107.extend(h107.view.components.base.BaseContainer, h107.view.components.base.B
 
 h107.view.components.base.BaseContainer.prototype.assemble = function (container) {
     'use strict';
-    var components = this.settings.components;
+    var self = this;
+    var components = self.settings.components;
     components.map(function (current) {
         var component = h107.create(current);
-        this.append(container, component);
+        self.append(container, component);
     });
     return container;
 };
@@ -668,8 +669,8 @@ h107.view.CardView.prototype.assemble = function () {
     var card = h107.DomProcessor.buildElement('div', cardSettings);
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
     for (var id in this.components) { // use map & arrow function
-        console.log(id);
-        console.log(this.components[id].html);
+        //console.log(id);
+        //console.log(this.components[id].html);
         if (this.components.hasOwnProperty(id) && !(this.components[id] instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
         }
@@ -679,6 +680,13 @@ h107.view.CardView.prototype.assemble = function () {
 
 h107.view.CardView.prototype.getActiveView = function () {
     'use strict';
+    console.log(Function.apply(this.components));
+
+    //Array.from(this.components, function (a, b) {
+    //    console.log(a);
+    //    console.log(b);
+    //});
+
     for (var id in this.components) {
         if (this.components.hasOwnProperty(id) && this.components[id].isActive()) {
             return this.components[id];

@@ -24,8 +24,8 @@ h107.view.CardView.prototype.assemble = function () {
     var card = h107.DomProcessor.buildElement('div', cardSettings);
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
     for (var id in this.components) { // use map & arrow function
-        console.log(id);
-        console.log(this.components[id].html);
+        //console.log(id);
+        //console.log(this.components[id].html);
         if (this.components.hasOwnProperty(id) && !(this.components[id] instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
         }

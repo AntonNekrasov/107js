@@ -39,7 +39,7 @@ gulp.task('script', function() {
     .pipe(uglify())
     .pipe(rename({suffix: '.min'}))
     .pipe(gulp.dest('dist/js/'))
-    .pipe(notify({ message: 'script task complete' }));
+    .pipe(notify({ message: 'Script task complete' }));
 });
 
 gulp.task('style', function() {
@@ -47,7 +47,7 @@ gulp.task('style', function() {
         .pipe(minifycss())
         .pipe(rename({suffix: '.min'}))
         .pipe(gulp.dest('dist/css/'))
-        .pipe(notify({ message: 'Styles task complete' }));
+        .pipe(notify({ message: 'Style task complete' }));
 });
 
 gulp.task('validate', function () {
