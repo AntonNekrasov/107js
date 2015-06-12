@@ -10,7 +10,7 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param newComponent - is a new component to be registered
      */
-    function define(alias, newComponent) {
+    function define(alias, newComponent) { // todo: look for a better name;
         if (!alias || h107.aliasMap[alias]) {
             throw 'alias ' + alias + ' is either already in use or not specified correctly';
         }
@@ -20,6 +20,21 @@ var h107 = (function () {
             var Component = identifyObjectByAlias(newComponent.component);
             return new Component(applySettings);
         };
+    }
+
+    /**
+     * defines new controller
+     *
+     * @param alias - is a new alias which will be identifying new component
+     * @param controller - is a new controller to be registered
+     */
+    function controller(alias, Ctrl) {
+        // Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, settings);
+        extend(Ctrl, h107.BaseController);
+
+        h107.controllerMap[alias] = new Ctrl();
+        // h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
+        // h107.aliasMap.view = h107.view.View;
     }
 
     /**
@@ -142,6 +157,7 @@ var h107 = (function () {
 
     return {
         define: define,
+        controller: controller,
         create: create,
         identifyObjectByAlias: identifyObjectByAlias,
         mergeObjects: mergeObjects,
@@ -155,9 +171,16 @@ var h107 = (function () {
 h107.view = {};
 h107.view.components = {};
 h107.view.components.base = {};
-h107.controller = {};
-h107.model = {};
+
 h107.aliasMap = {};
+h107.controllerMap = {};
+h107.routes = {}
+
+h107.Scope = function Scope(view, controller) {
+    'use strict';
+    this.view = view;
+    this.controller = controller;
+};
 
 h107.Callback = function Callback(fn, scope, parameters) {
     'use strict';
@@ -419,6 +442,46 @@ h107.view.components.base.BaseContainer.prototype.append = function (container, 
     container.appendChild(component.html);
 };
 /**
+ * Created by Anton.Nekrasov on 6/10/2015.
+ */
+h107.view.components.base.Controllable = function (settings) {
+    'use strict';
+    if (!settings.controller) {
+        throw 'no controller defined'
+    }
+
+    if (!settings.id) {
+        throw 'id field is mandatory for controllable View'
+    }
+    var defaults = {};
+    var applySettings = h107.mergeObjects(defaults, settings);
+    applySettings.id = settings.id;
+    h107.view.components.base.Controllable.superclass.constructor.call(this, applySettings);
+    this.bindController(settings.controller);
+};
+
+h107.extend(h107.view.components.base.Controllable, h107.view.components.base.BaseContainer);
+
+h107.view.components.base.Controllable.prototype.assemble = function (container) {
+    'use strict';
+    return h107.view.components.base.Controllable.superclass.assemble.call(this, container);
+};
+
+h107.view.components.base.Controllable.prototype.getController = function () {
+    'use strict';
+    // todo: implement;
+};
+
+h107.view.components.base.Controllable.prototype.bindController = function (id) {
+    'use strict';
+    var controller = h107.controllerMap[id];
+    if (!controller) {
+        throw 'no controller found';
+    }
+    this.controller = controller;
+    controller._registerView(this);
+};
+/**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
 h107.view.components.TextInput = function (settings) {
@@ -596,19 +659,17 @@ h107.view.components.Section.prototype.assemble = function () {
  */
 h107.view.View = function (settings) {
     'use strict';
-    this.url = '';
 
+    this.url = '';
     var defaults = {
         attributes: {
         }
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.View.superclass.constructor.call(this, applySettings);
-
 };
 
-h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
+h107.extend(h107.view.View, h107.view.components.base.Controllable);
 h107.aliasMap.view = h107.view.View;
 
 h107.view.View.prototype.assemble = function () {
@@ -659,7 +720,7 @@ h107.view.CardView = function (settings) {
     h107.view.CardView.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.CardView, h107.view.components.base.BaseContainer);
+h107.extend(h107.view.CardView, h107.view.components.base.Controllable);
 h107.aliasMap.cardview = h107.view.CardView;
 
 h107.view.CardView.prototype.assemble = function () {
@@ -668,9 +729,7 @@ h107.view.CardView.prototype.assemble = function () {
     var cardSettings = this.settings.attributes;
     var card = h107.DomProcessor.buildElement('div', cardSettings);
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
-    for (var id in this.components) { // use map & arrow function
-        //console.log(id);
-        //console.log(this.components[id].html);
+    for (var id in this.components) {
         if (this.components.hasOwnProperty(id) && !(this.components[id] instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
         }
@@ -680,13 +739,6 @@ h107.view.CardView.prototype.assemble = function () {
 
 h107.view.CardView.prototype.getActiveView = function () {
     'use strict';
-    console.log(Function.apply(this.components));
-
-    //Array.from(this.components, function (a, b) {
-    //    console.log(a);
-    //    console.log(b);
-    //});
-
     for (var id in this.components) {
         if (this.components.hasOwnProperty(id) && this.components[id].isActive()) {
             return this.components[id];
@@ -698,7 +750,7 @@ h107.view.CardView.prototype.setActive = function (id, duration) {
     'use strict';
     var currentView = this.getActiveView();
     var DEFAULT_DURATION = 15;
-    var newView = this.components[id];
+    var newView = this.components[id] || currentView;
     currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
         newView.activate,
         newView,
@@ -706,7 +758,7 @@ h107.view.CardView.prototype.setActive = function (id, duration) {
     ));
 };
 
-h107.view.CardView.prototype.__transformViewsIntoCards = function () {
+h107.view.CardView.prototype.__transformViewsIntoCards = function () { // todo: review code;
     'use strict';
     var components = this.settings.components;
     var updatedComponents = [];
@@ -725,16 +777,10 @@ h107.view.CardView.prototype.__transformViewsIntoCards = function () {
             }
         }
     };
-
     components.map(function (component) {
-        if (component.active) {
-            component = h107.mergeObjects(component, activeSettings);
-        } else {
-            component = h107.mergeObjects(component, settings);
-        }
+        component = h107.mergeObjects(component, component.active ? activeSettings : settings);
         updatedComponents.push(component);
     });
-
     this.settings.components = updatedComponents;
 };
 /**
@@ -842,4 +888,33 @@ h107.ajax = function (settings) {
     xmlHttp.responseType = applySettings.type;
     xmlHttp.send();
 
+};
+/**
+ * Created by Anton.Nekrasov on 5/20/2015.
+ */
+h107.BaseController = function (settings) {
+    'use strict';
+};
+
+h107.BaseController.prototype.navigate = function (url) { // todo: implement;
+    'use strict';
+};
+
+h107.BaseController.prototype.getController = function () { // todo: implement;
+    'use strict';
+};
+
+h107.BaseController.prototype.getView = function (id) { // todo: implement;
+    'use strict';
+    this.__views.map(function(view) {
+    	console.log(view);
+    });
+};
+
+h107.BaseController.prototype._registerView = function (view) { // todo: implement;
+    'use strict';
+    if (!this.__views) {
+    	this.__views = [];
+    }
+    this.__views.push(view);
 };

@@ -14,7 +14,7 @@ h107.view.CardView = function (settings) {
     h107.view.CardView.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.CardView, h107.view.components.base.BaseContainer);
+h107.extend(h107.view.CardView, h107.view.components.base.Controllable);
 h107.aliasMap.cardview = h107.view.CardView;
 
 h107.view.CardView.prototype.assemble = function () {
@@ -23,9 +23,7 @@ h107.view.CardView.prototype.assemble = function () {
     var cardSettings = this.settings.attributes;
     var card = h107.DomProcessor.buildElement('div', cardSettings);
     var assembled = h107.view.CardView.superclass.assemble.call(this, card);
-    for (var id in this.components) { // use map & arrow function
-        //console.log(id);
-        //console.log(this.components[id].html);
+    for (var id in this.components) {
         if (this.components.hasOwnProperty(id) && !(this.components[id] instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
         }
@@ -46,7 +44,7 @@ h107.view.CardView.prototype.setActive = function (id, duration) {
     'use strict';
     var currentView = this.getActiveView();
     var DEFAULT_DURATION = 15;
-    var newView = this.components[id];
+    var newView = this.components[id] || currentView;
     currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
         newView.activate,
         newView,
@@ -54,7 +52,7 @@ h107.view.CardView.prototype.setActive = function (id, duration) {
     ));
 };
 
-h107.view.CardView.prototype.__transformViewsIntoCards = function () {
+h107.view.CardView.prototype.__transformViewsIntoCards = function () { // todo: review code;
     'use strict';
     var components = this.settings.components;
     var updatedComponents = [];
@@ -73,15 +71,9 @@ h107.view.CardView.prototype.__transformViewsIntoCards = function () {
             }
         }
     };
-
     components.map(function (component) {
-        if (component.active) {
-            component = h107.mergeObjects(component, activeSettings);
-        } else {
-            component = h107.mergeObjects(component, settings);
-        }
+        component = h107.mergeObjects(component, component.active ? activeSettings : settings);
         updatedComponents.push(component);
     });
-
     this.settings.components = updatedComponents;
 };

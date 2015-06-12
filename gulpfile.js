@@ -19,6 +19,7 @@ gulp.task('script', function() {
         'mvc/js/view/components/base/baseElement.js',
         'mvc/js/view/components/base/baseInput.js',
         'mvc/js/view/components/base/baseContainer.js',
+        'mvc/js/view/components/base/baseControllable.js',
         'mvc/js/view/components/textInput.js',
         'mvc/js/view/components/hiddenInput.js',
         'mvc/js/view/components/textareaInput.js',
@@ -29,8 +30,9 @@ gulp.task('script', function() {
         'mvc/js/view/cardView.js',
         'mvc/js/view/formView.js',
         /*model*/
-        'mvc/js/model/baseService.js'
+        'mvc/js/model/baseService.js',
         /*controller*/
+        'mvc/js/controller/baseController.js'
     ])
     /*adding concatenation*/
     .pipe(concat('107.assembled.js'))

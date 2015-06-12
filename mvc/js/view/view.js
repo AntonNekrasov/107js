@@ -3,19 +3,17 @@
  */
 h107.view.View = function (settings) {
     'use strict';
-    this.url = '';
 
+    this.url = '';
     var defaults = {
         attributes: {
         }
     };
-
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.View.superclass.constructor.call(this, applySettings);
-
 };
 
-h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
+h107.extend(h107.view.View, h107.view.components.base.Controllable);
 h107.aliasMap.view = h107.view.View;
 
 h107.view.View.prototype.assemble = function () {

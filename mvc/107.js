@@ -10,7 +10,7 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param newComponent - is a new component to be registered
      */
-    function define(alias, newComponent) {
+    function define(alias, newComponent) { // todo: look for a better name;
         if (!alias || h107.aliasMap[alias]) {
             throw 'alias ' + alias + ' is either already in use or not specified correctly';
         }
@@ -20,6 +20,21 @@ var h107 = (function () {
             var Component = identifyObjectByAlias(newComponent.component);
             return new Component(applySettings);
         };
+    }
+
+    /**
+     * defines new controller
+     *
+     * @param alias - is a new alias which will be identifying new component
+     * @param controller - is a new controller to be registered
+     */
+    function controller(alias, Ctrl) {
+        // Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, settings);
+        extend(Ctrl, h107.BaseController);
+
+        h107.controllerMap[alias] = new Ctrl();
+        // h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
+        // h107.aliasMap.view = h107.view.View;
     }
 
     /**
@@ -142,6 +157,7 @@ var h107 = (function () {
 
     return {
         define: define,
+        controller: controller,
         create: create,
         identifyObjectByAlias: identifyObjectByAlias,
         mergeObjects: mergeObjects,
@@ -155,9 +171,16 @@ var h107 = (function () {
 h107.view = {};
 h107.view.components = {};
 h107.view.components.base = {};
-h107.controller = {};
-h107.model = {};
+
 h107.aliasMap = {};
+h107.controllerMap = {};
+h107.routes = {}
+
+h107.Scope = function Scope(view, controller) {
+    'use strict';
+    this.view = view;
+    this.controller = controller;
+};
 
 h107.Callback = function Callback(fn, scope, parameters) {
     'use strict';
