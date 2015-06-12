@@ -1,5 +1,6 @@
 h107.define('view1', {
 	id: 'view1',
+    url: 'view1',
     component: 'view',
     controller: 'view1Controller',
     attributes: {

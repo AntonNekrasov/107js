@@ -28,13 +28,13 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param controller - is a new controller to be registered
      */
-    function controller(alias, Ctrl) {
-        // Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, settings);
-        extend(Ctrl, h107.BaseController);
-
-        h107.controllerMap[alias] = new Ctrl();
-        // h107.extend(h107.view.View, h107.view.components.base.BaseContainer);
-        // h107.aliasMap.view = h107.view.View;
+    function controller(alias, ctrl) {
+        var Controller = function () {
+            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
+            ctrl.apply(this);
+        };
+        extend(Controller, h107.BaseController);
+        h107.controllerMap[alias] = new Controller();
     }
 
     /**
@@ -446,18 +446,27 @@ h107.view.components.base.BaseContainer.prototype.append = function (container, 
  */
 h107.view.components.base.Controllable = function (settings) {
     'use strict';
-    if (!settings.controller) {
-        throw 'no controller defined'
-    }
+    // if (!settings.controller) {
+    //     throw 'no controller defined'
+    // }
 
     if (!settings.id) {
-        throw 'id field is mandatory for controllable View'
+        throw 'id field is mandatory for controllable View';
     }
-    var defaults = {};
+
+    if (!settings.url) {
+        throw 'url field is mandatory for controllable View';
+    }
+
+    var defaults = {
+        url: ''
+    };
+
+
     var applySettings = h107.mergeObjects(defaults, settings);
     applySettings.id = settings.id;
     h107.view.components.base.Controllable.superclass.constructor.call(this, applySettings);
-    this.bindController(settings.controller);
+    // this.bindController(settings.controller);
 };
 
 h107.extend(h107.view.components.base.Controllable, h107.view.components.base.BaseContainer);
@@ -892,12 +901,14 @@ h107.ajax = function (settings) {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.BaseController = function (settings) {
+h107.BaseController = function () {
     'use strict';
+    this.__views = [];
 };
 
-h107.BaseController.prototype.navigate = function (url) { // todo: implement;
+h107.BaseController.prototype.navigate = function (view) { // todo: implement;
     'use strict';
+    console.log(view);
 };
 
 h107.BaseController.prototype.getController = function () { // todo: implement;
@@ -906,15 +917,14 @@ h107.BaseController.prototype.getController = function () { // todo: implement;
 
 h107.BaseController.prototype.getView = function (id) { // todo: implement;
     'use strict';
-    this.__views.map(function(view) {
-    	console.log(view);
+    return this.__views.map(function (view) {
+        if (view.id === id) {
+            return view;
+        }
     });
 };
 
 h107.BaseController.prototype._registerView = function (view) { // todo: implement;
     'use strict';
-    if (!this.__views) {
-    	this.__views = [];
-    }
     this.__views.push(view);
 };
