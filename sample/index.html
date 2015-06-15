@@ -9,6 +9,7 @@
     <script type="text/javascript" src="view1.js"></script>
     <script type="text/javascript" src="view2.js"></script>
     <script type="text/javascript" src="view3.js"></script>
+    <script type="text/javascript" src="cardView.js"></script>
     <script type="text/javascript" src="view1Controller.js"></script>
     <script type="text/javascript" src="view2Controller.js"></script>
     <script type="text/javascript" src="view3Controller.js"></script>
@@ -19,8 +20,6 @@
 
 </body>
 <script>
-// ESTRequest8488618493591.xml
-// ESTRequest8052805537917.xml
 //    var text = h107.create({
 //        component: 'text',
 //        name: 'Text',
@@ -99,31 +98,10 @@
 //
 //    });
 //    document.body.appendChild(form.html);
-    var cardView = h107.create({
-        controller: 'cardViewController',
-        component: 'cardview',
-        id: 'cardView',
-        url: 'cardview',
-        attributes: {
-            style: {
-                border: '1px solid'
-            }
-        },
-        components: [{
-            component: 'view1',
-            active: true,
-            attributes: {
-                'data-ololo' : 'text'
-            }
-        }, {
-            component: 'view2'
-        }, {
-            component: 'view3'
-        }]
-    });
-
-    document.body.appendChild(cardView.html);
-
+    // var cardView = h107.controllerMap['cardViewController'].getView('cardView');
+    // document.body.appendChild(cardView.html);
+    var cardview = h107.create({component: 'cardView'});
+    document.body.appendChild(cardview.html);
 </script>
 </html>
 

@@ -1,3 +1,3 @@
-h107.controller('view1Controller', function (settings) {
+h107.controller('view1Controller', ['view1'], function (settings) {
     'use strict';
 });

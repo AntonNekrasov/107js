@@ -1,4 +1,4 @@
-h107.controller('cardViewController', function (settings) {
+h107.controller('cardViewController', 'cardView', function (settings) {
     'use strict';
 
 

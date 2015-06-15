@@ -3,8 +3,6 @@
  */
 h107.view.View = function (settings) {
     'use strict';
-
-    this.url = '';
     var defaults = {
         attributes: {
         }

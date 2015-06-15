@@ -11,5 +11,4 @@ h107.define('view1', {
     components: [{
         component: 'table'
     }]
-
 });

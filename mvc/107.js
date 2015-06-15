@@ -8,9 +8,9 @@ var h107 = (function () {
      * adds new component to the component set
      *
      * @param alias - is a new alias which will be identifying new component
-     * @param newComponent - is a new component to be registered
+     * @param newComponent - is a new component to be registered. It should contain component property
      */
-    function define(alias, newComponent) { // todo: look for a better name;
+    function define(alias, newComponent) {
         if (!alias || h107.aliasMap[alias]) {
             throw 'alias ' + alias + ' is either already in use or not specified correctly';
         }
@@ -28,9 +28,9 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param controller - is a new controller to be registered
      */
-    function controller(alias, ctrl) {
+    function controller(alias, views, ctrl) {
         var Controller = function () {
-            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
+            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, views);
             ctrl.apply(this);
         };
         extend(Controller, h107.BaseController);
@@ -127,6 +127,15 @@ var h107 = (function () {
     }
 
     /**
+     * checks if given argument is array
+     *
+     * @param arg - argument to be checked
+     */
+    function isArray(arg) {
+        return Object.prototype.toString.call(arg) === '[object Array]';
+    }
+
+    /**
      * generates random id
      *
      * @param minLength - minimum id length
@@ -163,7 +172,8 @@ var h107 = (function () {
         mergeObjects: mergeObjects,
         extend: extend,
         generateId: generateId,
-        isObject: isObject
+        isObject: isObject,
+        isArray: isArray
     };
 
 })();
@@ -174,12 +184,16 @@ h107.view.components.base = {};
 
 h107.aliasMap = {};
 h107.controllerMap = {};
-h107.routes = {}
+h107.routes = {};
 
-h107.Scope = function Scope(view, controller) {
+h107.Scope = function Scope(route, view) {
     'use strict';
-    this.view = view;
-    this.controller = controller;
+    var self = this;
+    self.route = route;
+    self.view = view;
+    return function (controller) {
+        self.controller = controller;
+    }
 };
 
 h107.Callback = function Callback(fn, scope, parameters) {

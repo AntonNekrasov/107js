@@ -8,9 +8,9 @@ var h107 = (function () {
      * adds new component to the component set
      *
      * @param alias - is a new alias which will be identifying new component
-     * @param newComponent - is a new component to be registered
+     * @param newComponent - is a new component to be registered. It should contain component property
      */
-    function define(alias, newComponent) { // todo: look for a better name;
+    function define(alias, newComponent) {
         if (!alias || h107.aliasMap[alias]) {
             throw 'alias ' + alias + ' is either already in use or not specified correctly';
         }
@@ -28,9 +28,9 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param controller - is a new controller to be registered
      */
-    function controller(alias, ctrl) {
+    function controller(alias, views, ctrl) {
         var Controller = function () {
-            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
+            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, views);
             ctrl.apply(this);
         };
         extend(Controller, h107.BaseController);
@@ -127,6 +127,15 @@ var h107 = (function () {
     }
 
     /**
+     * checks if given argument is array
+     *
+     * @param arg - argument to be checked
+     */
+    function isArray(arg) {
+        return Object.prototype.toString.call(arg) === '[object Array]';
+    }
+
+    /**
      * generates random id
      *
      * @param minLength - minimum id length
@@ -163,7 +172,8 @@ var h107 = (function () {
         mergeObjects: mergeObjects,
         extend: extend,
         generateId: generateId,
-        isObject: isObject
+        isObject: isObject,
+        isArray: isArray
     };
 
 })();
@@ -174,12 +184,16 @@ h107.view.components.base = {};
 
 h107.aliasMap = {};
 h107.controllerMap = {};
-h107.routes = {}
+h107.routes = {};
 
-h107.Scope = function Scope(view, controller) {
+h107.Scope = function Scope(route, view) {
     'use strict';
-    this.view = view;
-    this.controller = controller;
+    var self = this;
+    self.route = route;
+    self.view = view;
+    return function (controller) {
+        self.controller = controller;
+    }
 };
 
 h107.Callback = function Callback(fn, scope, parameters) {
@@ -295,12 +309,12 @@ h107.view.components.base.BaseElement = function (settings) {
 
     var ID_MAX_LENGTH = 10;
     var ID_MIN_LENGTH = 5;
+
     var defaults = {
         attributes: {
-            id: h107.generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
+            id: settings.id || h107.generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
         }
     };
-
     this.settings = h107.mergeObjects(defaults, settings);
     this.html = this.assemble();
 };
@@ -446,27 +460,14 @@ h107.view.components.base.BaseContainer.prototype.append = function (container, 
  */
 h107.view.components.base.Controllable = function (settings) {
     'use strict';
-    // if (!settings.controller) {
-    //     throw 'no controller defined'
-    // }
-
-    if (!settings.id) {
-        throw 'id field is mandatory for controllable View';
-    }
-
     if (!settings.url) {
         throw 'url field is mandatory for controllable View';
     }
-
-    var defaults = {
-        url: ''
-    };
-
-
-    var applySettings = h107.mergeObjects(defaults, settings);
-    applySettings.id = settings.id;
-    h107.view.components.base.Controllable.superclass.constructor.call(this, applySettings);
-    // this.bindController(settings.controller);
+    if (!settings.id) {
+        throw 'id is mandatory';
+    }
+    h107.view.components.base.Controllable.superclass.constructor.call(this, settings);
+    h107.routes[settings.component] = new h107.Scope(settings.url, this);
 };
 
 h107.extend(h107.view.components.base.Controllable, h107.view.components.base.BaseContainer);
@@ -479,16 +480,6 @@ h107.view.components.base.Controllable.prototype.assemble = function (container)
 h107.view.components.base.Controllable.prototype.getController = function () {
     'use strict';
     // todo: implement;
-};
-
-h107.view.components.base.Controllable.prototype.bindController = function (id) {
-    'use strict';
-    var controller = h107.controllerMap[id];
-    if (!controller) {
-        throw 'no controller found';
-    }
-    this.controller = controller;
-    controller._registerView(this);
 };
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
@@ -668,8 +659,6 @@ h107.view.components.Section.prototype.assemble = function () {
  */
 h107.view.View = function (settings) {
     'use strict';
-
-    this.url = '';
     var defaults = {
         attributes: {
         }
@@ -901,10 +890,26 @@ h107.ajax = function (settings) {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.BaseController = function () {
+h107.BaseController = function (viewAliases) {
     'use strict';
+    var self = this;
     this.__views = [];
+    if (h107.isArray(viewAliases)) {
+        viewAliases.map(function (viewAlias) {
+            self.registerView(viewAlias);
+        });
+    } else {
+        self.registerView(viewAliases);
+    }
 };
+
+h107.BaseController.prototype.registerView = function (viewAlias) {
+	 var view = h107.routes[viewAlias];
+	// if (!view) {
+	// 	view = h107.create({component: viewAlias}); // todo: what if it has already been created?
+	// }
+    this.__views.push(viewAlias);
+}
 
 h107.BaseController.prototype.navigate = function (view) { // todo: implement;
     'use strict';
@@ -917,14 +922,11 @@ h107.BaseController.prototype.getController = function () { // todo: implement;
 
 h107.BaseController.prototype.getView = function (id) { // todo: implement;
     'use strict';
-    return this.__views.map(function (view) {
-        if (view.id === id) {
-            return view;
+    var result;
+    this.__views.map(function (view) {
+        if (view.settings.id === id) {
+            result = view;
         }
     });
-};
-
-h107.BaseController.prototype._registerView = function (view) { // todo: implement;
-    'use strict';
-    this.__views.push(view);
+    return result;
 };
