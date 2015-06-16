@@ -1,3 +1,9 @@
-h107.controller('view1Controller', ['view1'], function (settings) {
+h107.controller('view1Controller', function (settings) {
     'use strict';
+
+    this.subscribe('input').on('click', function () {
+    	alert('clicked!!!!');
+    });
+
+    
 });

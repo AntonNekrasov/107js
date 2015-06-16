@@ -19,7 +19,7 @@ gulp.task('script', function() {
         'mvc/js/view/components/base/baseElement.js',
         'mvc/js/view/components/base/baseInput.js',
         'mvc/js/view/components/base/baseContainer.js',
-        'mvc/js/view/components/base/baseControllable.js',
+        'mvc/js/view/components/base/controllable.js',
         'mvc/js/view/components/textInput.js',
         'mvc/js/view/components/hiddenInput.js',
         'mvc/js/view/components/textareaInput.js',

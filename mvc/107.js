@@ -28,9 +28,9 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param controller - is a new controller to be registered
      */
-    function controller(alias, views, ctrl) {
+    function controller(alias, ctrl) {
         var Controller = function () {
-            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, views);
+            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
             ctrl.apply(this);
         };
         extend(Controller, h107.BaseController);
@@ -186,17 +186,7 @@ h107.aliasMap = {};
 h107.controllerMap = {};
 h107.routes = {};
 
-h107.Scope = function Scope(route, view) {
-    'use strict';
-    var self = this;
-    self.route = route;
-    self.view = view;
-    return function (controller) {
-        self.controller = controller;
-    }
-};
-
-h107.Callback = function Callback(fn, scope, parameters) {
+h107.Callback = function (fn, scope, parameters) {
     'use strict';
     this.fn = fn;
     this.scope = scope;

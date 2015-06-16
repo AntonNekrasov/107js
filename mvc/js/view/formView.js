@@ -1,7 +1,7 @@
 /**
  * Created by Anton.Nekrasov on 5/22/2015.
  */
-h107.view.FormView = function (settings) {
+h107.view.FormView = function (settings) { // todo: make it extending view ?
     'use strict';
 
     var defaults = {
@@ -12,7 +12,7 @@ h107.view.FormView = function (settings) {
     h107.view.FormView.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.FormView, h107.view.components.base.BaseContainer);
+h107.extend(h107.view.FormView, h107.view.components.base.Controllable);
 h107.aliasMap.form = h107.view.FormView;
 
 h107.view.FormView.prototype.assemble = function () {

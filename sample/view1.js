@@ -9,6 +9,33 @@ h107.define('view1', {
         }
     },
     components: [{
-        component: 'table'
-    }]
+           component: 'section',
+           name: 'bookTitleSection',
+           class: '',
+           id: 'bookTitleSection',
+           components: [{
+               component: 'text',
+               name: 'bookTitle',
+               settings: {
+                   attributes: {
+                       css: {
+                           height: '20px',
+                           width: '200px'
+                       }
+                   },
+                   label: {
+                       text: 'Text label'
+                   },
+                   container: {
+                       attributes: {
+                           css: {
+                               border: '1px solid blue'
+                           }
+                       }
+                   }
+               }
+           }]
+       }, {
+           component: 'table'
+       }]
 });

@@ -28,9 +28,9 @@ var h107 = (function () {
      * @param alias - is a new alias which will be identifying new component
      * @param controller - is a new controller to be registered
      */
-    function controller(alias, views, ctrl) {
+    function controller(alias, ctrl) {
         var Controller = function () {
-            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this, views);
+            Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
             ctrl.apply(this);
         };
         extend(Controller, h107.BaseController);
@@ -186,17 +186,7 @@ h107.aliasMap = {};
 h107.controllerMap = {};
 h107.routes = {};
 
-h107.Scope = function Scope(route, view) {
-    'use strict';
-    var self = this;
-    self.route = route;
-    self.view = view;
-    return function (controller) {
-        self.controller = controller;
-    }
-};
-
-h107.Callback = function Callback(fn, scope, parameters) {
+h107.Callback = function (fn, scope, parameters) {
     'use strict';
     this.fn = fn;
     this.scope = scope;
@@ -460,14 +450,8 @@ h107.view.components.base.BaseContainer.prototype.append = function (container, 
  */
 h107.view.components.base.Controllable = function (settings) {
     'use strict';
-    if (!settings.url) {
-        throw 'url field is mandatory for controllable View';
-    }
-    if (!settings.id) {
-        throw 'id is mandatory';
-    }
     h107.view.components.base.Controllable.superclass.constructor.call(this, settings);
-    h107.routes[settings.component] = new h107.Scope(settings.url, this);
+    h107.controllerMap[settings.controller].registerView(this);
 };
 
 h107.extend(h107.view.components.base.Controllable, h107.view.components.base.BaseContainer);
@@ -479,8 +463,10 @@ h107.view.components.base.Controllable.prototype.assemble = function (container)
 
 h107.view.components.base.Controllable.prototype.getController = function () {
     'use strict';
-    // todo: implement;
+    return h107.controllerMap[this.settings.controller];
 };
+
+// subscriptions
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
@@ -708,12 +694,15 @@ h107.view.View.prototype.activate = function (duration, callback) {
 h107.view.CardView = function (settings) {
     'use strict';
     var defaults = {
+        components: [],
         attributes: {
             style: {
                 position: 'relative'
             }
         }
     };
+
+    this.components = {};
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.CardView.superclass.constructor.call(this, applySettings);
 };
@@ -723,16 +712,26 @@ h107.aliasMap.cardview = h107.view.CardView;
 
 h107.view.CardView.prototype.assemble = function () {
     'use strict';
-    this.__transformViewsIntoCards();
-    var cardSettings = this.settings.attributes;
-    var card = h107.DomProcessor.buildElement('div', cardSettings);
-    var assembled = h107.view.CardView.superclass.assemble.call(this, card);
-    for (var id in this.components) {
-        if (this.components.hasOwnProperty(id) && !(this.components[id] instanceof h107.view.View)) {
+    var self = this;
+    self.__transformViewsIntoCards();
+    var cardView = h107.DomProcessor.buildElement('div', this.settings.attributes);
+    var viewList = self.settings.components;
+    viewList.map(function (current) {
+        var view = h107.create(current);
+        if (!(view instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
         }
-    }
-    return assembled;
+        if (view.isActive()) {
+            cardView.appendChild(view.html);
+        }
+        self.append(view);
+    });
+    return cardView;
+};
+
+h107.view.CardView.prototype.append = function (component) {
+    'use strict';
+    this.components[component.settings.attributes.id] = component;
 };
 
 h107.view.CardView.prototype.getActiveView = function () {
@@ -746,14 +745,20 @@ h107.view.CardView.prototype.getActiveView = function () {
 
 h107.view.CardView.prototype.setActive = function (id, duration) {
     'use strict';
-    var currentView = this.getActiveView();
     var DEFAULT_DURATION = 15;
-    var newView = this.components[id] || currentView;
-    currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
-        newView.activate,
-        newView,
-        [duration || DEFAULT_DURATION]
-    ));
+    var currentView = this.getActiveView();
+    var newView = this.components[id];
+    this.html.innerHTML = '';
+    this.html.appendChild(newView.html);
+    if (currentView) {
+        currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
+            newView.activate,
+            newView,
+            [duration || DEFAULT_DURATION]
+        ));
+    } else {
+        newView.activate(duration || DEFAULT_DURATION);
+    }
 };
 
 h107.view.CardView.prototype.__transformViewsIntoCards = function () { // todo: review code;
@@ -784,7 +789,7 @@ h107.view.CardView.prototype.__transformViewsIntoCards = function () { // todo: 
 /**
  * Created by Anton.Nekrasov on 5/22/2015.
  */
-h107.view.FormView = function (settings) {
+h107.view.FormView = function (settings) { // todo: make it extending view ?
     'use strict';
 
     var defaults = {
@@ -795,7 +800,7 @@ h107.view.FormView = function (settings) {
     h107.view.FormView.superclass.constructor.call(this, applySettings);
 };
 
-h107.extend(h107.view.FormView, h107.view.components.base.BaseContainer);
+h107.extend(h107.view.FormView, h107.view.components.base.Controllable);
 h107.aliasMap.form = h107.view.FormView;
 
 h107.view.FormView.prototype.assemble = function () {
@@ -890,25 +895,24 @@ h107.ajax = function (settings) {
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
-h107.BaseController = function (viewAliases) {
+h107.BaseController = function () {
     'use strict';
-    var self = this;
     this.__views = [];
-    if (h107.isArray(viewAliases)) {
-        viewAliases.map(function (viewAlias) {
-            self.registerView(viewAlias);
-        });
-    } else {
-        self.registerView(viewAliases);
-    }
+    this.__subscriptions = [];
 };
 
-h107.BaseController.prototype.registerView = function (viewAlias) {
-	 var view = h107.routes[viewAlias];
-	// if (!view) {
-	// 	view = h107.create({component: viewAlias}); // todo: what if it has already been created?
-	// }
-    this.__views.push(viewAlias);
+h107.BaseController.prototype.registerView = function (view) {
+    'use strict';
+    var mandatorySettings = ['url', 'controller'];
+    mandatorySettings.map(function (property) {
+        if (!view.settings[property]) {
+            throw property + ' field is mandatory for controllable View';
+        }
+    });
+    this.__views.push(view);
+    this.__subscriptions.map(function (listener) {
+        listener(view.html);
+    });
 }
 
 h107.BaseController.prototype.navigate = function (view) { // todo: implement;
@@ -916,11 +920,12 @@ h107.BaseController.prototype.navigate = function (view) { // todo: implement;
     console.log(view);
 };
 
-h107.BaseController.prototype.getController = function () { // todo: implement;
+h107.BaseController.prototype.getController = function (controller) {
     'use strict';
+    return h107.controllerMap[controller];
 };
 
-h107.BaseController.prototype.getView = function (id) { // todo: implement;
+h107.BaseController.prototype.getView = function (id) {
     'use strict';
     var result;
     this.__views.map(function (view) {
@@ -930,3 +935,46 @@ h107.BaseController.prototype.getView = function (id) { // todo: implement;
     });
     return result;
 };
+
+h107.BaseController.prototype.subscribe = function (selector) {
+    'use strict';
+    var self = this;
+    return {
+        on: function (event, callback) {
+            var subscription = function (view) {
+                var elements = view.querySelectorAll(selector);
+                h107.BaseController.addListener(elements, event, callback);
+            };
+            self.__subscriptions.push(subscription);
+        }
+    }
+};
+
+h107.BaseController.addListener = function (elements, event, callback) {
+    'use strict';
+    var forEach = Array.prototype.forEach;
+    forEach.call(elements, function (elt) {
+        elt.addEventListener(event, function () {
+            callback.apply(elt);
+        }, false);
+    });
+};
+
+
+// h107.BaseController.prototype.subscribe = function (selector) {
+//     'use strict';
+//     var self = this;
+//     var forEach = Array.prototype.forEach;
+//     return {
+//         on: function (event, callback) {
+//             self.__subscriptions.push(function (view) {
+//                 var elements = view.querySelectorAll(selector);
+//                 forEach.call(elements, function (elt) {
+//                     elt.addEventListener(event, function () {
+//                         callback.apply(elt);
+//                     }, false);
+//                 });
+//             });
+//         }
+//     }
+// };
