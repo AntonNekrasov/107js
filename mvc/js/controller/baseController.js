@@ -9,7 +9,7 @@ h107.BaseController = function () {
 
 h107.BaseController.prototype.registerView = function (view) {
     'use strict';
-    var mandatorySettings = ['url', 'controller'];
+    var mandatorySettings = ['id', 'url', 'controller'];
     mandatorySettings.map(function (property) {
         if (!view.settings[property]) {
             throw property + ' field is mandatory for controllable View';
@@ -21,9 +21,20 @@ h107.BaseController.prototype.registerView = function (view) {
     });
 }
 
-h107.BaseController.prototype.navigate = function (view) { // todo: implement;
+h107.BaseController.prototype.navigate = function (viewId, callback, duration) { // todo: implement;
     'use strict';
-    console.log(view);
+    var view = this.getView(viewId);
+    if (!view) {
+        for (var controller in h107.controllerMap) {
+            if (h107.controllerMap.hasOwnProperty(controller) && h107.controllerMap[controller] !== this) {
+                var check = h107.controllerMap[controller].getView(viewId);
+                if (check) {
+                    view = check; // todo : optimize this shit;
+                }
+            }
+        }
+    }
+    view.activate(duration || h107.defaults.DURATION, callback);
 };
 
 h107.BaseController.prototype.getController = function (controller) {
@@ -42,7 +53,7 @@ h107.BaseController.prototype.getView = function (id) {
     return result;
 };
 
-h107.BaseController.prototype.subscribe = function (selector) {
+h107.BaseController.prototype.subscribe = function (selector) { // todo : check how we can subscribe dynamically added components
     'use strict';
     var self = this;
     return {
@@ -65,22 +76,3 @@ h107.BaseController.addListener = function (elements, event, callback) {
         }, false);
     });
 };
-
-
-// h107.BaseController.prototype.subscribe = function (selector) {
-//     'use strict';
-//     var self = this;
-//     var forEach = Array.prototype.forEach;
-//     return {
-//         on: function (event, callback) {
-//             self.__subscriptions.push(function (view) {
-//                 var elements = view.querySelectorAll(selector);
-//                 forEach.call(elements, function (elt) {
-//                     elt.addEventListener(event, function () {
-//                         callback.apply(elt);
-//                     }, false);
-//                 });
-//             });
-//         }
-//     }
-// };

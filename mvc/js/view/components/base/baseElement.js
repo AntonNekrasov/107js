@@ -3,13 +3,10 @@
  */
 h107.view.components.base.BaseElement = function (settings) {
     'use strict';
-
-    var ID_MAX_LENGTH = 10;
-    var ID_MIN_LENGTH = 5;
-
     var defaults = {
         attributes: {
-            id: settings.id || h107.generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
+            id: settings.id || h107.generateId(h107.defaults.ID_MIN_LENGTH,
+                h107.defaults.ID_MAX_LENGTH)
         }
     };
     this.settings = h107.mergeObjects(defaults, settings);
@@ -22,19 +19,23 @@ h107.view.components.base.BaseElement.prototype = {
         'use strict';
         throw 'method hasn\'t been specified';
     },
-    hide: function () {
+    hide: function (callback) {
         'use strict';
         h107.DomProcessor.addClassName(this.html, 'h107-hidden');
-
+        if (callback) {
+            callback.fn.apply(callback.scope, callback.parameters);
+        }
     },
-    show: function () {
+    show: function (callback) {
         'use strict';
         h107.DomProcessor.removeClassName(this.html, 'h107-hidden');
+        if (callback) {
+            callback.fn.apply(callback.scope, callback.parameters);
+        }
     },
     fadeOut: function (duration, callback) {
         'use strict';
         var self = this;
-        var DEFAULT_DURATION = 30;
         var elt = self.html;
         var fadeOutAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
@@ -47,14 +48,13 @@ h107.view.components.base.BaseElement.prototype = {
                     callback.fn.apply(callback.scope, callback.parameters)
                 }
             }
-        }, duration || DEFAULT_DURATION);
+        }, duration || h107.defaults.ANIMATE_DURATION);
     },
     fadeIn: function (duration, callback) {
         'use strict';
         var self = this;
         var fadeInAnimation;
         var elt = self.html;
-        var DEFAULT_DURATION = 30;
         self.show();
         fadeInAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
@@ -66,6 +66,6 @@ h107.view.components.base.BaseElement.prototype = {
             } else {
                 elt.style.opacity = opacity + 0.1;
             }
-        }, duration || DEFAULT_DURATION);
+        }, duration || h107.defaults.ANIMATE_DURATION);
     }
 };

@@ -14,6 +14,7 @@ var gulp = require('gulp'),
 gulp.task('script', function() {
     return gulp.src([
         'mvc/107.js',
+        'mvc/js/controller/history/history.js',
         /*view*/
         'mvc/js/view/domProcessor.js',
         'mvc/js/view/components/base/baseElement.js',

@@ -184,7 +184,14 @@ h107.view.components.base = {};
 
 h107.aliasMap = {};
 h107.controllerMap = {};
-h107.routes = {};
+// h107.routes = {};
+
+h107.defaults = {
+    DURATION: 15,
+    FADEOUT_DURATION: 30,
+    ID_MAX_LENGTH: 10,
+    ID_MIN_LENGTH: 5
+}
 
 h107.Callback = function (fn, scope, parameters) {
     'use strict';
@@ -192,6 +199,23 @@ h107.Callback = function (fn, scope, parameters) {
     this.scope = scope;
     this.parameters = parameters;
 };
+/**
+ * Created by Anton.Nekrasov on 5/20/2015.
+ */
+h107.History = (function () {
+    'use strict';
+    window.onpopstate = function (e) {
+        console.log(e);
+    };
+
+    function changeRoute(state, name, route) {
+        history.pushState(state, name, '#' + route);
+    }
+
+    return {
+        changeRoute: changeRoute
+    }
+}) ();
 /**
  * Created by Anton.Nekrasov on 5/18/2015.
  */
@@ -296,13 +320,10 @@ h107.DomProcessor = (function () {
  */
 h107.view.components.base.BaseElement = function (settings) {
     'use strict';
-
-    var ID_MAX_LENGTH = 10;
-    var ID_MIN_LENGTH = 5;
-
     var defaults = {
         attributes: {
-            id: settings.id || h107.generateId(ID_MIN_LENGTH, ID_MAX_LENGTH)
+            id: settings.id || h107.generateId(h107.defaults.ID_MIN_LENGTH,
+                h107.defaults.ID_MAX_LENGTH)
         }
     };
     this.settings = h107.mergeObjects(defaults, settings);
@@ -315,19 +336,23 @@ h107.view.components.base.BaseElement.prototype = {
         'use strict';
         throw 'method hasn\'t been specified';
     },
-    hide: function () {
+    hide: function (callback) {
         'use strict';
         h107.DomProcessor.addClassName(this.html, 'h107-hidden');
-
+        if (callback) {
+            callback.fn.apply(callback.scope, callback.parameters);
+        }
     },
-    show: function () {
+    show: function (callback) {
         'use strict';
         h107.DomProcessor.removeClassName(this.html, 'h107-hidden');
+        if (callback) {
+            callback.fn.apply(callback.scope, callback.parameters);
+        }
     },
     fadeOut: function (duration, callback) {
         'use strict';
         var self = this;
-        var DEFAULT_DURATION = 30;
         var elt = self.html;
         var fadeOutAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
@@ -340,14 +365,13 @@ h107.view.components.base.BaseElement.prototype = {
                     callback.fn.apply(callback.scope, callback.parameters)
                 }
             }
-        }, duration || DEFAULT_DURATION);
+        }, duration || h107.defaults.ANIMATE_DURATION);
     },
     fadeIn: function (duration, callback) {
         'use strict';
         var self = this;
         var fadeInAnimation;
         var elt = self.html;
-        var DEFAULT_DURATION = 30;
         self.show();
         fadeInAnimation = setInterval(function () {
             var opacity = parseFloat(elt.style.opacity);
@@ -359,7 +383,7 @@ h107.view.components.base.BaseElement.prototype = {
             } else {
                 elt.style.opacity = opacity + 0.1;
             }
-        }, duration || DEFAULT_DURATION);
+        }, duration || h107.defaults.ANIMATE_DURATION);
     }
 };
 /**
@@ -646,7 +670,11 @@ h107.view.components.Section.prototype.assemble = function () {
 h107.view.View = function (settings) {
     'use strict';
     var defaults = {
+        'class': 'h107-hidden',
         attributes: {
+            style: {
+                opacity: 0
+            }
         }
     };
     var applySettings = h107.mergeObjects(defaults, settings);
@@ -658,7 +686,6 @@ h107.aliasMap.view = h107.view.View;
 
 h107.view.View.prototype.assemble = function () {
     'use strict';
-
     var viewSettings = this.settings.attributes;
     var view = h107.DomProcessor.buildElement('div', viewSettings);
     return h107.view.View.superclass.assemble.call(this, view);
@@ -673,7 +700,7 @@ h107.view.View.prototype.desActivate = function (duration, callback) {
     'use strict';
     this.settings.active = false;
     if (duration === 0) {
-        this.hide();
+        this.hide(callback);
     } else {
         this.fadeOut(duration, callback);
     }
@@ -681,9 +708,11 @@ h107.view.View.prototype.desActivate = function (duration, callback) {
 
 h107.view.View.prototype.activate = function (duration, callback) {
     'use strict';
-    this.settings.active = true;
+    var settings = this.settings;
+    settings.active = true;
+    h107.History.changeRoute(settings.id, settings.name, settings.url);
     if (duration === 0) {
-        this.show();
+        this.show(callback);
     } else {
         this.fadeIn(duration, callback);
     }
@@ -702,9 +731,13 @@ h107.view.CardView = function (settings) {
         }
     };
 
-    this.components = {};
+    // this.components = {};
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.CardView.superclass.constructor.call(this, applySettings);
+    var activeView = this.getActiveView();
+    if (activeView) {
+        this.setActive(activeView.settings.id);
+    }
 };
 
 h107.extend(h107.view.CardView, h107.view.components.base.Controllable);
@@ -713,16 +746,12 @@ h107.aliasMap.cardview = h107.view.CardView;
 h107.view.CardView.prototype.assemble = function () {
     'use strict';
     var self = this;
-    self.__transformViewsIntoCards();
     var cardView = h107.DomProcessor.buildElement('div', this.settings.attributes);
     var viewList = self.settings.components;
     viewList.map(function (current) {
         var view = h107.create(current);
         if (!(view instanceof h107.view.View)) {
             throw 'CardView can only accept h107.view.View object types';
-        }
-        if (view.isActive()) {
-            cardView.appendChild(view.html);
         }
         self.append(view);
     });
@@ -745,46 +774,19 @@ h107.view.CardView.prototype.getActiveView = function () {
 
 h107.view.CardView.prototype.setActive = function (id, duration) {
     'use strict';
-    var DEFAULT_DURATION = 15;
     var currentView = this.getActiveView();
     var newView = this.components[id];
     this.html.innerHTML = '';
     this.html.appendChild(newView.html);
     if (currentView) {
-        currentView.desActivate(duration || DEFAULT_DURATION, new h107.Callback(
+        currentView.desActivate(duration || h107.defaults.DURATION, new h107.Callback(
             newView.activate,
             newView,
-            [duration || DEFAULT_DURATION]
+            [duration || h107.defaults.DURATION]
         ));
     } else {
-        newView.activate(duration || DEFAULT_DURATION);
+        newView.activate(duration || h107.defaults.DURATION);
     }
-};
-
-h107.view.CardView.prototype.__transformViewsIntoCards = function () { // todo: review code;
-    'use strict';
-    var components = this.settings.components;
-    var updatedComponents = [];
-    var settings = {
-        attributes: {
-            'class': 'h107-hidden',
-            style: {
-                opacity: 0
-            }
-        }
-    };
-    var activeSettings = {
-        attributes: {
-            style: {
-                opacity: 1
-            }
-        }
-    };
-    components.map(function (component) {
-        component = h107.mergeObjects(component, component.active ? activeSettings : settings);
-        updatedComponents.push(component);
-    });
-    this.settings.components = updatedComponents;
 };
 /**
  * Created by Anton.Nekrasov on 5/22/2015.
@@ -903,7 +905,7 @@ h107.BaseController = function () {
 
 h107.BaseController.prototype.registerView = function (view) {
     'use strict';
-    var mandatorySettings = ['url', 'controller'];
+    var mandatorySettings = ['id', 'url', 'controller'];
     mandatorySettings.map(function (property) {
         if (!view.settings[property]) {
             throw property + ' field is mandatory for controllable View';
@@ -915,9 +917,20 @@ h107.BaseController.prototype.registerView = function (view) {
     });
 }
 
-h107.BaseController.prototype.navigate = function (view) { // todo: implement;
+h107.BaseController.prototype.navigate = function (viewId, callback, duration) { // todo: implement;
     'use strict';
-    console.log(view);
+    var view = this.getView(viewId);
+    if (!view) {
+        for (var controller in h107.controllerMap) {
+            if (h107.controllerMap.hasOwnProperty(controller) && h107.controllerMap[controller] !== this) {
+                var check = h107.controllerMap[controller].getView(viewId);
+                if (check) {
+                    view = check; // todo : optimize this shit;
+                }
+            }
+        }
+    }
+    view.activate(duration || h107.defaults.DURATION, callback);
 };
 
 h107.BaseController.prototype.getController = function (controller) {
@@ -936,7 +949,7 @@ h107.BaseController.prototype.getView = function (id) {
     return result;
 };
 
-h107.BaseController.prototype.subscribe = function (selector) {
+h107.BaseController.prototype.subscribe = function (selector) { // todo : check how we can subscribe dynamically added components
     'use strict';
     var self = this;
     return {
@@ -959,22 +972,3 @@ h107.BaseController.addListener = function (elements, event, callback) {
         }, false);
     });
 };
-
-
-// h107.BaseController.prototype.subscribe = function (selector) {
-//     'use strict';
-//     var self = this;
-//     var forEach = Array.prototype.forEach;
-//     return {
-//         on: function (event, callback) {
-//             self.__subscriptions.push(function (view) {
-//                 var elements = view.querySelectorAll(selector);
-//                 forEach.call(elements, function (elt) {
-//                     elt.addEventListener(event, function () {
-//                         callback.apply(elt);
-//                     }, false);
-//                 });
-//             });
-//         }
-//     }
-// };

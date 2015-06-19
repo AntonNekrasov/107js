@@ -184,7 +184,14 @@ h107.view.components.base = {};
 
 h107.aliasMap = {};
 h107.controllerMap = {};
-h107.routes = {};
+// h107.routes = {};
+
+h107.defaults = {
+    DURATION: 15,
+    FADEOUT_DURATION: 30,
+    ID_MAX_LENGTH: 10,
+    ID_MIN_LENGTH: 5
+}
 
 h107.Callback = function (fn, scope, parameters) {
     'use strict';

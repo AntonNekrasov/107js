@@ -18,5 +18,3 @@ h107.view.components.base.Controllable.prototype.getController = function () {
     'use strict';
     return h107.controllerMap[this.settings.controller];
 };
-
-// subscriptions

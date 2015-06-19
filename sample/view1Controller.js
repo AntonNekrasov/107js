@@ -5,5 +5,4 @@ h107.controller('view1Controller', function (settings) {
     	alert('clicked!!!!');
     });
 
-    
 });
