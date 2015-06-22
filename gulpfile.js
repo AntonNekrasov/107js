@@ -33,7 +33,9 @@ gulp.task('script', function() {
         /*model*/
         'mvc/js/model/baseService.js',
         /*controller*/
-        'mvc/js/controller/baseController.js'
+        'mvc/js/controller/baseController.js',
+        /*app*/
+        'mvc/js/app.js'
     ])
     /*adding concatenation*/
     .pipe(concat('107.assembled.js'))

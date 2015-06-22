@@ -212,8 +212,27 @@ h107.History = (function () {
         history.pushState(state, name, '#' + route);
     }
 
+    function navigateToRoute(route) {
+        var containsHash = route.indexOf('#') === 0;
+        if (containsHash) {
+            route = route.substring(1);
+        }
+        setTimeout(function () {
+            for (var key in h107.controllerMap) {
+                if (h107.controllerMap.hasOwnProperty(key)) {
+                    var controller = h107.controllerMap[key];
+                    var result = controller.getViewByUrl(route);
+                    if (result) {
+                        result.getController()
+                    }
+                }
+            }
+        }, 0);
+    }
+
     return {
-        changeRoute: changeRoute
+        changeRoute: changeRoute,
+        navigateToRoute: navigateToRoute
     }
 }) ();
 /**
@@ -489,8 +508,6 @@ h107.view.components.base.Controllable.prototype.getController = function () {
     'use strict';
     return h107.controllerMap[this.settings.controller];
 };
-
-// subscriptions
 /**
  * Created by Anton.Nekrasov on 5/20/2015.
  */
@@ -949,6 +966,30 @@ h107.BaseController.prototype.getView = function (id) {
     return result;
 };
 
+h107.BaseController.prototype.getViewByUrl = function (url) {
+    'use strict';
+    var result;
+    this.__views.map(function (view) {
+        if (view.settings.url === url) {
+            result = view;
+        }
+    });
+    return result;
+};
+
+h107.BaseController.prototype.historyChanged = function (view) {
+    var views = [];
+    if (view) {
+        views.push(this.getView(view));
+    } else {
+        views = this.__views;
+    }
+    return function (fn) {
+        fn.apply(views);
+    }
+
+}
+
 h107.BaseController.prototype.subscribe = function (selector) { // todo : check how we can subscribe dynamically added components
     'use strict';
     var self = this;
@@ -972,3 +1013,28 @@ h107.BaseController.addListener = function (elements, event, callback) {
         }, false);
     });
 };
+h107.App = (function () {
+    'use strict';
+
+    function launch(landing) {
+
+        if (location.hash) {
+            h107.History.navigateToRoute(location.hash);
+        }
+
+        var cardview = h107.create({
+            component: landing
+        });
+
+        if (!(cardview instanceof h107.view.CardView)) {
+            throw 'landing view can only be of type h107.view.CardView';
+        }
+
+        document.body.appendChild(cardview.html);
+    }
+
+    return {
+        launch: launch
+    }
+
+}) ();

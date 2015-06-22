@@ -53,6 +53,30 @@ h107.BaseController.prototype.getView = function (id) {
     return result;
 };
 
+h107.BaseController.prototype.getViewByUrl = function (url) {
+    'use strict';
+    var result;
+    this.__views.map(function (view) {
+        if (view.settings.url === url) {
+            result = view;
+        }
+    });
+    return result;
+};
+
+h107.BaseController.prototype.historyChanged = function (view) {
+    var views = [];
+    if (view) {
+        views.push(this.getView(view));
+    } else {
+        views = this.__views;
+    }
+    return function (fn) {
+        fn.apply(views);
+    }
+
+}
+
 h107.BaseController.prototype.subscribe = function (selector) { // todo : check how we can subscribe dynamically added components
     'use strict';
     var self = this;
