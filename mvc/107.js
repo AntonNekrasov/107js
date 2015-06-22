@@ -188,7 +188,7 @@ h107.controllerMap = {};
 
 h107.defaults = {
     DURATION: 15,
-    FADEOUT_DURATION: 30,
+    ANIMATE_DURATION: 30,
     ID_MAX_LENGTH: 10,
     ID_MIN_LENGTH: 5
 }

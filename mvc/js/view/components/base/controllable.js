@@ -5,6 +5,7 @@ h107.view.components.base.Controllable = function (settings) {
     'use strict';
     h107.view.components.base.Controllable.superclass.constructor.call(this, settings);
     h107.controllerMap[settings.controller].registerView(this);
+    
 };
 
 h107.extend(h107.view.components.base.Controllable, h107.view.components.base.BaseContainer);
