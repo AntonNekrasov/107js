@@ -5,4 +5,11 @@ h107.controller('view1Controller', function (settings) {
     	alert('clicked!!!!');
     });
 
+    this.view().onactive(function (views) {
+        console.log("123213213213213")
+
+
+
+    });
+
 });

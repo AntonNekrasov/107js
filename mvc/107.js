@@ -30,6 +30,7 @@ var h107 = (function () {
      */
     function controller(alias, ctrl) {
         var Controller = function () {
+            this.name = alias;
             Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
             ctrl.apply(this);
         };
@@ -190,7 +191,8 @@ h107.defaults = {
     DURATION: 15,
     ANIMATE_DURATION: 30,
     ID_MAX_LENGTH: 10,
-    ID_MIN_LENGTH: 5
+    ID_MIN_LENGTH: 5,
+    ACTIVATION_EVENT: 'onviewactivate'
 }
 
 h107.Callback = function (fn, scope, parameters) {

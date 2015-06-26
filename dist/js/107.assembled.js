@@ -30,6 +30,7 @@ var h107 = (function () {
      */
     function controller(alias, ctrl) {
         var Controller = function () {
+            this.name = alias;
             Object.getPrototypeOf(this).constructor.superclass.constructor.call(this);
             ctrl.apply(this);
         };
@@ -188,9 +189,10 @@ h107.controllerMap = {};
 
 h107.defaults = {
     DURATION: 15,
-    FADEOUT_DURATION: 30,
+    ANIMATE_DURATION: 30,
     ID_MAX_LENGTH: 10,
-    ID_MIN_LENGTH: 5
+    ID_MIN_LENGTH: 5,
+    ACTIVATION_EVENT: 'onviewactivate'
 }
 
 h107.Callback = function (fn, scope, parameters) {
@@ -205,7 +207,12 @@ h107.Callback = function (fn, scope, parameters) {
 h107.History = (function () {
     'use strict';
     window.onpopstate = function (e) {
-        console.log(e);
+        var state = e.state;
+        var event = new Event(h107.defaults.ACTIVATION_EVENT, {
+            url: e.newUrl
+        });
+        var controller = h107.controllerMap[state.controller];
+        controller.dispatchEvent(event);
     };
 
     function changeRoute(state, name, route) {
@@ -222,9 +229,11 @@ h107.History = (function () {
                 if (h107.controllerMap.hasOwnProperty(key)) {
                     var controller = h107.controllerMap[key];
                     var result = controller.getViewByUrl(route);
-                    if (result) {
-                        result.getController()
-                    }
+                    console.log(result);
+                    // history.replaceState({page: 3}, "title 3", "?page=3");
+                    // if (result) {
+                    //     // result.getController().onactive(result.id);
+                    // }
                 }
             }
         }, 0);
@@ -694,6 +703,7 @@ h107.view.View = function (settings) {
             }
         }
     };
+
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.View.superclass.constructor.call(this, applySettings);
 };
@@ -727,7 +737,11 @@ h107.view.View.prototype.activate = function (duration, callback) {
     'use strict';
     var settings = this.settings;
     settings.active = true;
-    h107.History.changeRoute(settings.id, settings.name, settings.url);
+    var state = {
+        view: settings.id,
+        controller: this.getController().name
+    }
+    h107.History.changeRoute(state, settings.name, settings.url);
     if (duration === 0) {
         this.show(callback);
     } else {
@@ -955,7 +969,7 @@ h107.BaseController.prototype.getController = function (controller) {
     return h107.controllerMap[controller];
 };
 
-h107.BaseController.prototype.getView = function (id) {
+h107.BaseController.prototype.getView = function (id) { // todo: review the code;
     'use strict';
     var result;
     this.__views.map(function (view) {
@@ -966,28 +980,39 @@ h107.BaseController.prototype.getView = function (id) {
     return result;
 };
 
-h107.BaseController.prototype.getViewByUrl = function (url) {
+// h107.BaseController.prototype.getViewByUrl = function (url) {
+//     'use strict';
+//     var result;
+//     this.__views.map(function (view) {
+//         if (view.settings.url === url) {
+//             result = view;
+//         }
+//     });
+//     return result;
+// };
+
+h107.BaseController.prototype.addEventListener = function () {
     'use strict';
-    var result;
-    this.__views.map(function (view) {
-        if (view.settings.url === url) {
-            result = view;
+    return document.addEventListener || document.attachEvent
+}
+
+h107.BaseController.prototype.view = function (id) {
+    'use strict'
+    var self = this;
+    return {
+        onactive: function (fn) {
+            self.addEventListener(h107.defaults.ACTIVATION_EVENT, function () {
+                self.__views.filter(function (elt) {
+                    if (id) {
+                        return elt.settings.id === id
+                    }
+                    return true;
+                }).map(function (view) {
+                    fn.apply(view);
+                });
+            });
         }
-    });
-    return result;
-};
-
-h107.BaseController.prototype.historyChanged = function (view) {
-    var views = [];
-    if (view) {
-        views.push(this.getView(view));
-    } else {
-        views = this.__views;
     }
-    return function (fn) {
-        fn.apply(views);
-    }
-
 }
 
 h107.BaseController.prototype.subscribe = function (selector) { // todo : check how we can subscribe dynamically added components
@@ -1017,11 +1042,6 @@ h107.App = (function () {
     'use strict';
 
     function launch(landing) {
-
-        if (location.hash) {
-            h107.History.navigateToRoute(location.hash);
-        }
-
         var cardview = h107.create({
             component: landing
         });
@@ -1029,7 +1049,6 @@ h107.App = (function () {
         if (!(cardview instanceof h107.view.CardView)) {
             throw 'landing view can only be of type h107.view.CardView';
         }
-
         document.body.appendChild(cardview.html);
     }
 

@@ -11,6 +11,7 @@ h107.view.View = function (settings) {
             }
         }
     };
+
     var applySettings = h107.mergeObjects(defaults, settings);
     h107.view.View.superclass.constructor.call(this, applySettings);
 };
@@ -44,7 +45,11 @@ h107.view.View.prototype.activate = function (duration, callback) {
     'use strict';
     var settings = this.settings;
     settings.active = true;
-    h107.History.changeRoute(settings.id, settings.name, settings.url);
+    var state = {
+        view: settings.id,
+        controller: this.getController().name
+    }
+    h107.History.changeRoute(state, settings.name, settings.url);
     if (duration === 0) {
         this.show(callback);
     } else {

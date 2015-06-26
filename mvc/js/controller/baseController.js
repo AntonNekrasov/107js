@@ -42,7 +42,7 @@ h107.BaseController.prototype.getController = function (controller) {
     return h107.controllerMap[controller];
 };
 
-h107.BaseController.prototype.getView = function (id) {
+h107.BaseController.prototype.getView = function (id) { // todo: review the code;
     'use strict';
     var result;
     this.__views.map(function (view) {
@@ -53,28 +53,39 @@ h107.BaseController.prototype.getView = function (id) {
     return result;
 };
 
-h107.BaseController.prototype.getViewByUrl = function (url) {
+// h107.BaseController.prototype.getViewByUrl = function (url) {
+//     'use strict';
+//     var result;
+//     this.__views.map(function (view) {
+//         if (view.settings.url === url) {
+//             result = view;
+//         }
+//     });
+//     return result;
+// };
+
+h107.BaseController.prototype.addEventListener = function () {
     'use strict';
-    var result;
-    this.__views.map(function (view) {
-        if (view.settings.url === url) {
-            result = view;
+    return document.addEventListener || document.attachEvent
+}
+
+h107.BaseController.prototype.view = function (id) {
+    'use strict'
+    var self = this;
+    return {
+        onactive: function (fn) {
+            self.addEventListener(h107.defaults.ACTIVATION_EVENT, function () {
+                self.__views.filter(function (elt) {
+                    if (id) {
+                        return elt.settings.id === id
+                    }
+                    return true;
+                }).map(function (view) {
+                    fn.apply(view);
+                });
+            });
         }
-    });
-    return result;
-};
-
-h107.BaseController.prototype.historyChanged = function (view) {
-    var views = [];
-    if (view) {
-        views.push(this.getView(view));
-    } else {
-        views = this.__views;
     }
-    return function (fn) {
-        fn.apply(views);
-    }
-
 }
 
 h107.BaseController.prototype.subscribe = function (selector) { // todo : check how we can subscribe dynamically added components
